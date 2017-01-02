@@ -23,9 +23,9 @@ public class SplashScreen implements Screen
     public SplashScreen(MiceAlert game)
     {
         this.game = game;
-        texture = new Texture("background.png");
+        texture = new Texture("image/background.png");
         splashImage = new Image(texture);
-        clickToPlay = new Texture("clickToPlayStub.png");
+        clickToPlay = new Texture("image/clickToPlayStub.png");
         splashText = new Image(clickToPlay);
         splashImage.setFillParent(true);
         stage = new Stage();
@@ -34,9 +34,6 @@ public class SplashScreen implements Screen
     @Override
     public void show()
     {
-        stage.addActor(splashImage);
-        Gdx.input.setInputProcessor(stage);
-
         splashImage.addAction(
                 Actions.sequence(
                         Actions.alpha(0),
@@ -51,7 +48,6 @@ public class SplashScreen implements Screen
             }
         });
 
-        stage.addActor(splashText);
         splashText.addAction(Actions.alpha(0));
         splashText.act(0);
         splashText.addAction(
@@ -60,6 +56,10 @@ public class SplashScreen implements Screen
                                 Actions.fadeIn(1f),
                                 Actions.fadeOut(1f))));
         splashText.setPosition(Gdx.graphics.getWidth() / 32, Gdx.graphics.getHeight() - splashText.getHeight());
+
+        stage.addActor(splashImage);
+        stage.addActor(splashText);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -67,14 +67,10 @@ public class SplashScreen implements Screen
     {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        game.batch.begin();
         stage.act(delta);
         stage.draw();
-        /*game.batch.begin();
-        splashText.act(Gdx.graphics.getDeltaTime());
-        splashText.draw(game.batch, 1);
-        //game.batch.draw(playButton, Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 60, 300, 120);
-        game.batch.end();*/
+        game.batch.end();
     }
 
     @Override
