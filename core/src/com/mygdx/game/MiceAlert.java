@@ -2,18 +2,20 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class MiceAlert extends Game
 {
-	SpriteBatch batch;
+	public SpriteBatch batch;
+	public BitmapFont font;
 
-	
 	@Override
 	public void create ()
 	{
 		batch = new SpriteBatch();
-		this.setScreen(new MainMenu(this));
+		font = new BitmapFont();
+		this.setScreen(new SplashScreen(this));
 	}
 
 	@Override
@@ -26,5 +28,6 @@ public class MiceAlert extends Game
 	public void dispose ()
 	{
 		batch.dispose();
+		font.dispose();
 	}
 }
