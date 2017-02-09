@@ -23,9 +23,9 @@ public class SplashScreen implements Screen
     public SplashScreen(MiceAlert game)
     {
         this.game = game;
-        texture = new Texture("image/background.png");
+        texture = new Texture("Assets_Image/background.png");
         splashImage = new Image(texture);
-        clickToPlay = new Texture("image/clickToPlayStub.png");
+        clickToPlay = new Texture("Assets_Image/clickToPlayStub.png");
         splashText = new Image(clickToPlay);
         splashImage.setFillParent(true);
         stage = new Stage();
@@ -43,7 +43,7 @@ public class SplashScreen implements Screen
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                game.setScreen(new MainMenu(game));
+                game.setScreen(new LevelGenerator(game));
                 return true;
             }
         });
@@ -55,7 +55,7 @@ public class SplashScreen implements Screen
                         Actions.sequence(
                                 Actions.fadeIn(1f),
                                 Actions.fadeOut(1f))));
-        splashText.setPosition(Gdx.graphics.getWidth() / 32, Gdx.graphics.getHeight() - splashText.getHeight());
+        //splashText.setPosition(Gdx.graphics.getWidth() / 32, Gdx.graphics.getHeight() - splashText.getHeight());
 
         stage.addActor(splashImage);
         stage.addActor(splashText);
