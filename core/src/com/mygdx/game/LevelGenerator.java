@@ -66,7 +66,7 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
             }
         }
         Animation_TracerCat = new SpriteAnimation(1f/4f, Frames_TracerCat);
-        //Animation_TracerCat.setScaling(w / 576f);
+        Animation_TracerCat.setScaling(w / 576f);
         Animation_TracerCat.setPlayMode(Animation.PlayMode.LOOP);
 
 
@@ -75,8 +75,8 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
         //camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
         tiledMap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_00.tmx");
-        //tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, w / 576f); //576 = 64px * 9tiles
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, w / 576f); //576 = 64px * 9tiles
+        //tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         Gdx.input.setInputProcessor(this);
 
         objects = tiledMap.getLayers().get("Layer_Spawn_Cat").getObjects();
@@ -85,8 +85,8 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
             if(object instanceof RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                testX = rect.getX();
-                testY = rect.getY();
+                testX = rect.getX() * w / 576f;
+                testY = rect.getY() * w / 576f;
             }
         }
         stateTime = 0f;
