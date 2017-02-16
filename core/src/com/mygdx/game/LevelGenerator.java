@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -28,7 +29,10 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
     OrthographicCamera camera;
     TiledMap tiledMap;
     TiledMapRenderer tiledMapRenderer;
+    TextureMapObjectRenderer textureMapObjectRenderer;
     MapObjects objects;
+    MapObjects miceAlert_Map_Tiles;
+    MapObjects miceAlert_Map_Walls;
 
     SpriteAnimation Animation_TracerCat;
     Texture texture;
@@ -36,7 +40,7 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
     Sprite sprite;
 
     float stateTime;
-
+    float scale;
     float testX, testY;
 
     public LevelGenerator(MiceAlert game)
@@ -51,6 +55,7 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
     {
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
+        scale = w / 576f; //576 = 64px * 9tiles
 
         TextureRegion[][] temp = TextureRegion.split(
                 texture,
@@ -66,27 +71,32 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
             }
         }
         Animation_TracerCat = new SpriteAnimation(1f/4f, Frames_TracerCat);
-        Animation_TracerCat.setScaling(w / 576f);
+        Animation_TracerCat.setScaling(scale);
         Animation_TracerCat.setPlayMode(Animation.PlayMode.LOOP);
 
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.setToOrtho(false, w, h);
-        //camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
         tiledMap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_00.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, w / 576f); //576 = 64px * 9tiles
-        //tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap, scale);
         Gdx.input.setInputProcessor(this);
 
-        objects = tiledMap.getLayers().get("Layer_Spawn_Cat").getObjects();
+        // Rendering Tile and Wall objects
+        textureMapObjectRenderer = new TextureMapObjectRenderer();
+        textureMapObjectRenderer.tilemapSetScale(scale);
+        miceAlert_Map_Tiles = tiledMap.getLayers().get("Layer_Collision_Tiles").getObjects();
+        miceAlert_Map_Walls = tiledMap.getLayers().get("Layer_Collision_Walls").getObjects();
+
+
+        objects = tiledMap.getLayers().get("Layer_Spawn_Cats").getObjects();
         for(MapObject object : objects)
         {
             if(object instanceof RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                testX = rect.getX() * w / 576f;
-                testY = rect.getY() * w / 576f;
+                testX = rect.getX() * scale;
+                testY = rect.getY() * scale;
             }
         }
         stateTime = 0f;
@@ -105,19 +115,14 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
 
-        game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        //game.batch.draw(Animation_TracerCat.getKeyFrame(stateTime, true), 0, 0);
-        Animation_TracerCat.draw(stateTime, game.batch, testX, testY);
-        //Gdx.app.log("Yokaka", testX + " " + testY);
-        game.batch.end();
-    }
+        game.batch.setProjectionMatrix(camera.combined);
 
-    @Override
-    public void resize(int width, int height)
-    {
-        //float aspectRatio = (float)width / (float)height;
-        //camera = new OrthographicCamera(2f * aspectRatio, 2f);
+        // Rendering Tile and Wall objects
+        textureMapObjectRenderer.tilemapRenderObject(miceAlert_Map_Tiles, game.batch, stateTime);
+        textureMapObjectRenderer.tilemapRenderObject(miceAlert_Map_Walls, game.batch, stateTime);
+        Animation_TracerCat.draw(stateTime, game.batch, testX, testY);
+        game.batch.end();
     }
 
     @Override

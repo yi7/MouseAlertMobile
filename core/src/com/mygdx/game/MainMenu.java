@@ -49,25 +49,12 @@ public class MainMenu implements Screen
         stubImage = new Image(stubTexture);
         stubImage.setWidth(Gdx.graphics.getWidth() / 4);
         stubImage.setHeight(Gdx.graphics.getHeight());
-        /*skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-        startButton = new TextButton("Start", skin, "default");
-        optionButton = new TextButton("Option", skin, "default");*/
         stage = new Stage();
     }
 
     @Override
     public void show()
     {
-        /*startButton.setPosition(Gdx.graphics.getWidth() / 2 - 210/2f, Gdx.graphics.getHeight() / 2 + 70f);
-        startButton.setWidth(Gdx.graphics.getWidth() / 4);
-        startButton.setHeight(Gdx.graphics.getWidth() / 16);
-        optionButton.setPosition(Gdx.graphics.getWidth() / 2 - 210/2f, Gdx.graphics.getHeight() / 2 - 10f);
-        optionButton.setWidth(Gdx.graphics.getWidth() / 8);
-        optionButton.setHeight(Gdx.graphics.getWidth() / 32);
-
-        stage.addActor(startButton);
-        stage.addActor(optionButton);*/
-
         playImage.addAction(
                 Actions.sequence(
                         Actions.alpha(0),
