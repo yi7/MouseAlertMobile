@@ -1,11 +1,11 @@
-package com.mygdx.game;
+package com.mygdx.game.systems;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 
-public class TextureMapObjectRenderer
+public class RenderSystem
 {
     float scale;
 

@@ -14,12 +14,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.systems.RenderSystem;
 
 public class LevelGenerator extends ApplicationAdapter implements InputProcessor, Screen
 {
@@ -29,7 +29,7 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
     OrthographicCamera camera;
     TiledMap tiledMap;
     TiledMapRenderer tiledMapRenderer;
-    TextureMapObjectRenderer textureMapObjectRenderer;
+    RenderSystem textureMapObjectRenderer;
     MapObjects objects;
     MapObjects miceAlert_Map_Tiles;
     MapObjects miceAlert_Map_Walls;
@@ -83,7 +83,7 @@ public class LevelGenerator extends ApplicationAdapter implements InputProcessor
         Gdx.input.setInputProcessor(this);
 
         // Rendering Tile and Wall objects
-        textureMapObjectRenderer = new TextureMapObjectRenderer();
+        textureMapObjectRenderer = new RenderSystem();
         textureMapObjectRenderer.tilemapSetScale(scale);
         miceAlert_Map_Tiles = tiledMap.getLayers().get("Layer_Collision_Tiles").getObjects();
         miceAlert_Map_Walls = tiledMap.getLayers().get("Layer_Collision_Walls").getObjects();
