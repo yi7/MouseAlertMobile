@@ -5,7 +5,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 
-public class RenderSystem
+public class TilemapSystem
 {
     float scale;
 
@@ -14,7 +14,7 @@ public class RenderSystem
         this.scale = scale;
     }
 
-    public void tilemapRenderObject(MapObjects objects, Batch batch, float stateTime)
+    public void tilemapRenderObject(MapObjects objects, Batch batch, float deltaTime)
     {
         for(MapObject object : objects)
         {
