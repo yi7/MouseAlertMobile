@@ -6,12 +6,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.systems.TilemapSystem;
+
+import java.util.ArrayList;
 
 public class LevelGenerator extends ScreenAdapter implements InputProcessor, Screen
 {
@@ -22,6 +27,13 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     TilemapSystem tilemapObjectRenderer;
     MapObjects mapObjectsTiles;
     MapObjects mapObjectsWalls;
+
+    Texture textureCatTracer;
+    Sprite spriteCatTracer;
+    SpriteAnimation spriteAnimationCatTracer;
+    MapObjects mapObjectsCatTracer;
+
+    ArrayList<Vector2> positionsCatTracer;
 
     float deltaTime;
     float phoneScale;
@@ -53,6 +65,15 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
         mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
 
+        textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
+        spriteCatTracer = new Sprite(textureCatTracer, 8, 1);
+        spriteCatTracer.setScaling(phoneScale);
+        spriteAnimationCatTracer = new SpriteAnimation(1f/4f, spriteCatTracer.generateSpriteTextureRegion());
+        spriteAnimationCatTracer.setScaling(phoneScale);
+        spriteAnimationCatTracer.setPlayMode(Animation.PlayMode.LOOP);
+        mapObjectsCatTracer = tilemap.getLayers().get("Layer_Spawn_Cats").getObjects();
+        positionsCatTracer = spriteCatTracer.getSpawnPosition(mapObjectsCatTracer);
+
         deltaTime = 0f;
     }
 
@@ -75,10 +96,17 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         tilemapRenderer.render();
 
         game.batch.begin();
+
         game.batch.setProjectionMatrix(camera.combined);
 
         tilemapObjectRenderer.tilemapRenderObject(mapObjectsTiles, game.batch, deltaTime);
         tilemapObjectRenderer.tilemapRenderObject(mapObjectsWalls, game.batch, deltaTime);
+
+        for(Vector2 position : positionsCatTracer)
+        {
+            spriteAnimationCatTracer.draw(deltaTime, game.batch, position.x, position.y);
+        }
+
         game.batch.end();
     }
 
