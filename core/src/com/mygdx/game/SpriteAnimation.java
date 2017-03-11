@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -13,14 +14,14 @@ public class SpriteAnimation extends Animation
         super(frameDuration, keyFrames);
     }
 
-    public void setScaling(float scale)
+    public void setScale(float scale)
     {
         this.scale = scale;
     }
 
-    public void draw(float stateTime, Batch batch, float x, float y)
+    public void draw(float deltaTime, Batch batch, float x, float y)
     {
-        TextureRegion region = getKeyFrame(stateTime);
+        TextureRegion region = getKeyFrame(deltaTime);
         batch.draw(region, x, y, region.getRegionWidth() * scale, region.getRegionHeight() * scale);
     }
 }

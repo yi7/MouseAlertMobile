@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -24,9 +25,14 @@ public class Sprite
         this.rows = rows;
     }
 
-    public void setScaling(float scale)
+    public void setScale(float scale)
     {
         this.scale = scale;
+    }
+
+    public float getScale()
+    {
+        return scale;
     }
 
     public TextureRegion[] generateSpriteTextureRegion()
@@ -49,21 +55,8 @@ public class Sprite
         return textureRegion;
     }
 
-    public ArrayList<Vector2> getSpawnPosition(MapObjects mapObjects)
+    public void drawSprite(float deltaTime, Batch batch, float x, float y)
     {
-        ArrayList<Vector2> positions = new ArrayList<Vector2>();
-        for (MapObject object : mapObjects) {
-            if (object instanceof RectangleMapObject) {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                Vector2 position = new Vector2();
-                position.set
-                        (
-                                rect.getX() * scale,
-                                rect.getY() * scale
-                        );
-                positions.add(position);
-            }
-        }
-        return positions;
+
     }
 }
