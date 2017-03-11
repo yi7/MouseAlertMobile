@@ -28,4 +28,12 @@ public class EntitySystem
         }
         //Gdx.app.log("Yokaka", "------");
     }
+
+    public void updateAllEntity()
+    {
+        for(Entity entity : entityList)
+        {
+            entity.updateEntity(entity);
+        }
+    }
 }

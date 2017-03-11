@@ -59,19 +59,19 @@ public class Entity
 
     public void setState(String passedState)
     {
-        if(passedState == "UP")
+        if(passedState.equals("UP"))
         {
             this.state = entityState.UP;
         }
-        else if(passedState == "RIGHT")
+        else if(passedState.equals("RIGHT"))
         {
             this.state = entityState.RIGHT;
         }
-        else if(passedState == "DOWN")
+        else if(passedState.equals("DOWN"))
         {
             this.state = entityState.DOWN;
         }
-        else if(passedState == "LEFT")
+        else if(passedState.equals("LEFT"))
         {
             this.state = entityState.LEFT;
         }
@@ -82,8 +82,26 @@ public class Entity
         spriteAnimation.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
     }
 
-    public void updateEntity()
+    public void updateEntity(Entity entity)
     {
-        
+        switch(entity.state)
+        {
+            case UP:
+                entity.position.y += velocity;
+                break;
+            case RIGHT:
+                entity.position.x += velocity;
+                break;
+            case DOWN:
+                entity.position.y -= velocity;
+                break;
+            case LEFT:
+                entity.position.x -= velocity;
+                break;
+            case FREE:
+                break;
+            default:
+                break;
+        }
     }
 }

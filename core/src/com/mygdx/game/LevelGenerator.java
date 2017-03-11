@@ -123,6 +123,8 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         entitySystem.drawAllEntity(deltaTime, game.batch);
 
         game.batch.end();
+
+        entitySystem.updateAllEntity();
     }
 
     @Override
