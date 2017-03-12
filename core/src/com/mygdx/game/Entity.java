@@ -30,11 +30,23 @@ public class Entity
     Entity.entityType type;
     Vector2 position;
     int velocity;
+    boolean inuse;
 
     public Entity(Entity.entityType type, Sprite sprite)
     {
+        if(type == null)
+        {
+            this.inuse = false;
+            return;
+        }
+        else
+        {
+            this.inuse = true;
+        }
+
         this.type = type;
         this.sprite = sprite;
+
         spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
         spriteAnimation.setScale(sprite.getScale());
         spriteAnimation.setPlayMode(Animation.PlayMode.LOOP);

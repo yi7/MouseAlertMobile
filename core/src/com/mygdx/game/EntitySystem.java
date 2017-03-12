@@ -3,37 +3,58 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
-import java.util.ArrayList;
-
 public class EntitySystem
 {
-    ArrayList<Entity> entityList;
+    Entity[] entityList;
+
 
     public EntitySystem()
     {
-        entityList = new ArrayList<Entity>();
+        entityList = new Entity[1000];
+
+        for(int i = 0; i < entityList.length; i++)
+        {
+            entityList[i] = new Entity(null, null);
+        }
     }
 
     public void newEntity(Entity entity)
     {
-        entityList.add(entity);
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(entityList[i].inuse)
+            {
+                continue;
+            }
+
+            entityList[i] = entity;
+            break;
+        }
     }
 
     public void drawAllEntity(float deltaTime, Batch batch)
     {
-        for(Entity entity : entityList)
+        for(int i = 0; i < entityList.length; i++)
         {
-            //dx.app.log("Yokaka", entity.position.x + ", " + entity.position.y);
-            entity.drawEntity(deltaTime, batch, entity.position.x, entity.position.y);
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            entityList[i].drawEntity(deltaTime, batch, entityList[i].position.x, entityList[i].position.y);
         }
-        //Gdx.app.log("Yokaka", "------");
     }
 
     public void updateAllEntity()
     {
-        for(Entity entity : entityList)
+        for(int i = 0; i < entityList.length; i++)
         {
-            entity.updateEntity(entity);
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            entityList[i].updateEntity(entityList[i]);
         }
     }
 }
