@@ -54,9 +54,4 @@ public class Sprite
         }
         return textureRegion;
     }
-
-    public void drawSprite(float deltaTime, Batch batch, float x, float y)
-    {
-
-    }
 }

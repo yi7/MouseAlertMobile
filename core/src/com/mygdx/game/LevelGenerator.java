@@ -74,18 +74,15 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
         spriteCatTracer = new Sprite(textureCatTracer, 8, 1);
         spriteCatTracer.setScale(phoneScale);
-        spriteAnimationCatTracer = new SpriteAnimation(1f/4f, spriteCatTracer.generateSpriteTextureRegion());
-        spriteAnimationCatTracer.setScale(spriteCatTracer.getScale());
-        spriteAnimationCatTracer.setPlayMode(Animation.PlayMode.LOOP);
         mapObjectsCatTracer = tilemap.getLayers().get("Layer_Spawn_Cats").getObjects();
         for(MapObject object : mapObjectsCatTracer)
         {
             if (object instanceof RectangleMapObject)
             {
-                Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer);
-
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer);
                 entityCatTracer.setPosition(rect.getX(), rect.getY());
+                entityCatTracer.setFrameSize(rect.getWidth(), rect.getHeight());
                 entityCatTracer.setState(object.getProperties().get("State", String.class));
 
                 entitySystem.newEntity(entityCatTracer);

@@ -47,6 +47,7 @@ public class EntitySystem
 
     public void updateAllEntity()
     {
+        Entity entity;
         for(int i = 0; i < entityList.length; i++)
         {
             if(!entityList[i].inuse)
@@ -54,7 +55,48 @@ public class EntitySystem
                 continue;
             }
 
-            entityList[i].updateEntity(entityList[i]);
+            entity = this.collisionCheckAllEntity(entityList[i]);
+            if( entity != null)
+            {
+                switch(entity.type)
+                {
+                    case WALL:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                entityList[i].updateEntity(entityList[i]);
+            }
         }
+    }
+
+    public Entity collisionCheckAllEntity(Entity entity)
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            //ignore itself
+            if(entityList[i] == entity)
+            {
+                continue;
+            }
+
+            //check collision
+            if( (entity.position.x + entity.frameSize.x > entityList[i].position.x) &&
+                (entityList[i].position.x + entityList[i].frameSize.x > entity.position.x) &&
+                (entity.position.y + entity.frameSize.y > entityList[i].position.y) &&
+                (entityList[i].position.y + entityList[i].frameSize.y > entity.position.y) )
+            {
+                return entityList[i];
+            }
+        }
+        return null;
     }
 }
