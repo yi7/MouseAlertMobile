@@ -111,25 +111,70 @@ public class Entity
         switch(entity.state)
         {
             case UP:
-                Gdx.app.log("Yokaka", entity.position.y + "");
+                /*Gdx.app.log("Yokaka", entity.position.y * 2.5 + "");
                 Gdx.app.log("Yokaka", entity.frameSize.y + "");
-                Gdx.app.log("Yokaka", Gdx.graphics.getWidth() + "");
-                Gdx.app.log("Yokaka", "---------------");
+                Gdx.app.log("Yokaka", Gdx.graphics.getHeight() + "");
+                Gdx.app.log("Yoka", "---------------");*/
                 entity.position.y += velocity;
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = entityState.RIGHT;
+                    entity.position.y -= velocity;
+                }
                 break;
             case RIGHT:
                 entity.position.x += velocity;
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = entityState.DOWN;
+                    entity.position.x -= velocity;
+                }
                 break;
             case DOWN:
                 entity.position.y -= velocity;
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = entityState.LEFT;
+                    entity.position.y += velocity;
+                }
                 break;
             case LEFT:
                 entity.position.x -= velocity;
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = entityState.UP;
+                    entity.position.x += velocity;
+                }
                 break;
             case FREE:
                 break;
             default:
                 break;
+        }
+    }
+
+    public boolean boundaryCheckEntity(Entity entity)
+    {
+        //Gdx.app.log("Yokaka", entity.position.y * entity.sprite.getScale()+entity.frameSize.y  * entity.sprite.getScale()+ " > " + Gdx.graphics.getHeight());
+        if(entity.position.y * entity.sprite.getScale() + entity.frameSize.y * entity.sprite.getScale() > Gdx.graphics.getHeight())
+        {
+            return true;
+        }
+        else if(entity.position.x * entity.sprite.getScale() + entity.frameSize.x * entity.sprite.getScale() > 576f * 2.5)
+        {
+            return true;
+        }
+        else if(entity.position.y < 0)
+        {
+            return true;
+        }
+        else if(entity.position.x < 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
