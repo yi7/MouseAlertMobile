@@ -36,8 +36,9 @@ public class Entity
     Vector2 frameSize;
     int velocity;
     boolean inuse;
+    float scale;
 
-    public Entity(Entity.entityType type, Sprite sprite)
+    public Entity(Entity.entityType type, Sprite sprite, float scale)
     {
         if(type == null)
         {
@@ -51,10 +52,14 @@ public class Entity
 
         this.type = type;
         this.sprite = sprite;
+        this.scale = scale;
 
-        spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
-        spriteAnimation.setScale(sprite.getScale());
-        spriteAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        if(sprite != null)
+        {
+            spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
+            spriteAnimation.setScale(sprite.getScale());
+            spriteAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        }
 
         switch(type)
         {
@@ -62,9 +67,19 @@ public class Entity
                 velocity = 8;
                 break;
             default:
-                velocity = 4;
+                velocity = 0;
                 break;
         }
+    }
+
+    public float getScale()
+    {
+        return this.scale;
+    }
+
+    public int getVelocity()
+    {
+        return this.velocity;
     }
 
     public void setFrameSize(float x, float y)
@@ -103,18 +118,27 @@ public class Entity
 
     public void drawEntity(float deltaTime, Batch batch, float x, float y)
     {
-        spriteAnimation.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+        if(sprite != null)
+        {
+            spriteAnimation.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+        }
     }
 
     public void updateEntity(Entity entity)
     {
+        if(entity.sprite == null)
+        {
+            return;
+        }
+        /*Gdx.app.log("Yokaka", entity.position.y * 2.5 + "");
+        Gdx.app.log("Yokaka", entity.frameSize.y + "");
+        Gdx.app.log("Yokaka", Gdx.graphics.getHeight() + "");
+        Gdx.app.log("Yoka", "---------------");*/
+        Entity.entityState original = entity.state;
         switch(entity.state)
         {
             case UP:
-                /*Gdx.app.log("Yokaka", entity.position.y * 2.5 + "");
-                Gdx.app.log("Yokaka", entity.frameSize.y + "");
-                Gdx.app.log("Yokaka", Gdx.graphics.getHeight() + "");
-                Gdx.app.log("Yoka", "---------------");*/
+
                 entity.position.y += velocity;
                 if(boundaryCheckEntity(entity))
                 {
@@ -153,14 +177,33 @@ public class Entity
         }
     }
 
+    public void updateCatEntity(Entity entity)
+    {
+        if(entity.sprite == null)
+        {
+            return;
+        }
+
+        switch(entity.type)
+        {
+            case CAT_TRACER:
+                return;
+            case TILE_BLOCK:
+
+                break;
+            default:
+                break;
+        }
+    }
+
     public boolean boundaryCheckEntity(Entity entity)
     {
         //Gdx.app.log("Yokaka", entity.position.y * entity.sprite.getScale()+entity.frameSize.y  * entity.sprite.getScale()+ " > " + Gdx.graphics.getHeight());
-        if(entity.position.y * entity.sprite.getScale() + entity.frameSize.y * entity.sprite.getScale() > Gdx.graphics.getHeight())
+        if(entity.position.y * scale + entity.frameSize.y * scale > Gdx.graphics.getHeight())
         {
             return true;
         }
-        else if(entity.position.x * entity.sprite.getScale() + entity.frameSize.x * entity.sprite.getScale() > 576f * 2.5)
+        else if(entity.position.x * scale + entity.frameSize.x * scale > 576f * 2.5)
         {
             return true;
         }

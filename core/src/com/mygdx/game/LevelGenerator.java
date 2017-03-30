@@ -68,8 +68,21 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         tilemapRenderer = new OrthogonalTiledMapRenderer(tilemap, phoneScale);
         tilemapObjectRenderer = new TilemapSystem();
         tilemapObjectRenderer.tilemapSetScale(phoneScale);
-        mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
         mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
+
+        mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
+        for(MapObject object : mapObjectsTiles)
+        {
+            if(object instanceof  RectangleMapObject)
+            {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                Entity entityTileBlock = new Entity(Entity.entityType.TILE_BLOCK, null, phoneScale);
+                entityTileBlock.setPosition(rect.getX(), rect.getY());
+                entityTileBlock.setFrameSize(rect.getWidth(), rect.getHeight());
+                Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
+                entitySystem.newEntity(entityTileBlock);
+            }
+        }
 
         textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
         spriteCatTracer = new Sprite(textureCatTracer, 8, 1);
@@ -80,11 +93,10 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
             if (object instanceof RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer);
+                Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
                 entityCatTracer.setPosition(rect.getX(), rect.getY());
                 entityCatTracer.setFrameSize(rect.getWidth(), rect.getHeight());
                 entityCatTracer.setState(object.getProperties().get("State", String.class));
-
                 entitySystem.newEntity(entityCatTracer);
             }
         }

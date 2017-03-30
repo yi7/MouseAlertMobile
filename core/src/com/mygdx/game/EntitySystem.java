@@ -14,7 +14,7 @@ public class EntitySystem
 
         for(int i = 0; i < entityList.length; i++)
         {
-            entityList[i] = new Entity(null, null);
+            entityList[i] = new Entity(null, null, 0);
         }
     }
 
@@ -54,26 +54,127 @@ public class EntitySystem
             {
                 continue;
             }
+            //entityList[i].updateEntity(entityList[i]);
 
-            entity = this.collisionCheckAllEntity(entityList[i]);
-            if( entity != null)
+            //entity = this.collisionCheckEntity(entityList[i]);
+            updateEntity(entityList[i]);
+            /*if(entity != null)
             {
+                Gdx.app.log("Yokaka", "Test");
+
                 switch(entity.type)
                 {
+                    case CAT_TRACER:
+                        //entity.updateCatEntity(entityList[i]);
+                        break;
                     case WALL:
                         break;
                     default:
                         break;
                 }
+            }*/
+        }
+    }
+
+    public boolean checkFrontOfEntity(Entity entity)
+    {
+        if(collisionCheckEntity(entity) != null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void updateEntity(Entity entity)
+    {
+        if(entity.sprite == null)
+        {
+            return;
+        }
+
+        Entity.entityState original = entity.state;
+        for(int i = 0; i < 4; i++)
+        {
+            switch(entity.state)
+            {
+                case UP:
+                    entity.position.y += entity.getVelocity();
+                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
+                    {
+                        entity.state = Entity.entityState.RIGHT;
+                        entity.position.y -= entity.getVelocity();
+                    }
+                    break;
+                case RIGHT:
+                    entity.position.x += entity.getVelocity();
+                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
+                    {
+                        entity.state = Entity.entityState.DOWN;
+                        entity.position.x -= entity.getVelocity();
+                    }
+                    break;
+                case DOWN:
+                    entity.position.y -= entity.getVelocity();
+                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
+                    {
+                        entity.state = Entity.entityState.LEFT;
+                        entity.position.y += entity.getVelocity();
+                    }
+                    break;
+                case LEFT:
+                    entity.position.x -= entity.getVelocity();
+                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
+                    {
+                        entity.state = Entity.entityState.UP;
+                        entity.position.x += entity.getVelocity();
+                    }
+                    break;
+                case FREE:
+                    break;
+                default:
+                    break;
+            }
+
+            if(checkFrontOfEntity(entity) && entity.state != original)
+            {
+                continue;
             }
             else
             {
-                entityList[i].updateEntity(entityList[i]);
+                return;
             }
         }
     }
 
-    public Entity collisionCheckAllEntity(Entity entity)
+    public boolean boundaryCheckEntity(Entity entity)
+    {
+        //Gdx.app.log("Yokaka", entity.position.y * entity.sprite.getScale()+entity.frameSize.y  * entity.sprite.getScale()+ " > " + Gdx.graphics.getHeight());
+        if(entity.position.y * entity.getScale() + entity.frameSize.y * entity.getScale() > Gdx.graphics.getHeight())
+        {
+            return true;
+        }
+        else if(entity.position.x * entity.getScale() + entity.frameSize.x * entity.getScale() > 576f * 2.5)
+        {
+            return true;
+        }
+        else if(entity.position.y < 0)
+        {
+            return true;
+        }
+        else if(entity.position.x < 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Entity collisionCheckEntity(Entity entity)
     {
         for(int i = 0; i < entityList.length; i++)
         {
