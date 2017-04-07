@@ -32,7 +32,9 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     MapObjects mapObjectsWalls;
 
     Texture textureCatTracer;
+    Texture textureMouseNeutral;
     Sprite spriteCatTracer;
+    Sprite spriteMouseNeutral;
     SpriteAnimation spriteAnimationCatTracer;
     MapObjects mapObjectsCatTracer;
 
@@ -79,25 +81,44 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
                 Entity entityTileBlock = new Entity(Entity.entityType.TILE_BLOCK, null, phoneScale);
                 entityTileBlock.setPosition(rect.getX(), rect.getY());
                 entityTileBlock.setFrameSize(rect.getWidth(), rect.getHeight());
-                Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
+                //Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
                 entitySystem.newEntity(entityTileBlock);
             }
         }
 
         textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
+        textureMouseNeutral = new Texture("Assets_Image/MiceAlert_Sprite_NeutralMouse.png");
         spriteCatTracer = new Sprite(textureCatTracer, 8, 1);
         spriteCatTracer.setScale(phoneScale);
+        spriteMouseNeutral = new Sprite(textureMouseNeutral, 8, 1);
+        spriteMouseNeutral.setScale(phoneScale);
         mapObjectsCatTracer = tilemap.getLayers().get("Layer_Spawn_Cats").getObjects();
         for(MapObject object : mapObjectsCatTracer)
         {
             if (object instanceof RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
-                entityCatTracer.setPosition(rect.getX(), rect.getY());
-                entityCatTracer.setFrameSize(rect.getWidth(), rect.getHeight());
-                entityCatTracer.setState(object.getProperties().get("State", String.class));
-                entitySystem.newEntity(entityCatTracer);
+
+                Entity temp_entity = null;
+                if(object.getProperties().get("Type", String.class).equals("CAT_TRACER"))
+                {
+                    temp_entity = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
+                }
+                else if(object.getProperties().get("Type", String.class).equals("MOUSE_NEUTRAL"))
+                {
+                    temp_entity = new Entity(Entity.entityType.MOUSE_NEUTRAL, spriteMouseNeutral, phoneScale);
+                }
+
+                temp_entity.setPosition(rect.getX(), rect.getY());
+                temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
+                temp_entity.setState(object.getProperties().get("State", String.class));
+                entitySystem.newEntity(temp_entity);
+
+                //Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
+                //entityCatTracer.setPosition(rect.getX(), rect.getY());
+                //entityCatTracer.setFrameSize(rect.getWidth(), rect.getHeight());
+                //entityCatTracer.setState(object.getProperties().get("State", String.class));
+                //entitySystem.newEntity(entityCatTracer);
             }
         }
 

@@ -32,6 +32,12 @@ public class EntitySystem
         }
     }
 
+    public void freeEntity(Entity entity)
+    {
+        entity.inuse = false;
+        entity.sprite = null;
+    }
+
     public void drawAllEntity(float deltaTime, Batch batch)
     {
         for(int i = 0; i < entityList.length; i++)
@@ -76,16 +82,35 @@ public class EntitySystem
         }
     }
 
-    public boolean checkFrontOfEntity(Entity entity)
+    public Entity checkFrontOfEntity(Entity entity)
     {
-        if(collisionCheckEntity(entity) != null)
+        Entity temp_entity;
+
+        temp_entity = collisionCheckEntity(entity);
+        if(temp_entity != null)
         {
-            return true;
+            return temp_entity;
         }
         else
         {
-            return false;
+            return null;
         }
+    }
+
+    public Entity.entityState getOppositeState(Entity.entityState state)
+    {
+        switch(state)
+        {
+            case UP:
+                return Entity.entityState.DOWN;
+            case RIGHT:
+                return Entity.entityState.LEFT;
+            case DOWN:
+                return Entity.entityState.UP;
+            case LEFT:
+                return Entity.entityState.RIGHT;
+        }
+        return null;
     }
 
     public void updateEntity(Entity entity)
@@ -95,57 +120,77 @@ public class EntitySystem
             return;
         }
 
-        Entity.entityState original = entity.state;
-        for(int i = 0; i < 4; i++)
+        Entity.entityState state_original = entity.state;
+        Entity.entityState state_opposite = getOppositeState(entity.state);
+        Entity collided_entity;
+        switch(entity.state)
         {
-            switch(entity.state)
-            {
-                case UP:
-                    entity.position.y += entity.getVelocity();
-                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
+            case UP:
+                entity.position.y += entity.getVelocity();
+                collided_entity = checkFrontOfEntity(entity);
+                if(collided_entity != null)
+                {
+                    switch(entity.type)
                     {
-                        entity.state = Entity.entityState.RIGHT;
-                        entity.position.y -= entity.getVelocity();
+                        case MOUSE_NEUTRAL:
+                            if(collided_entity.type == Entity.entityType.CAT_TRACER)
+                            {
+                                entity.state = Entity.entityState.FREE;
+                            }
+                            break;
+                        case CAT_TRACER:
+                            if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
+                            {
+                                collided_entity.state = Entity.entityState.FREE;
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                case RIGHT:
-                    entity.position.x += entity.getVelocity();
-                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
-                    {
-                        entity.state = Entity.entityState.DOWN;
-                        entity.position.x -= entity.getVelocity();
-                    }
-                    break;
-                case DOWN:
+                }
+                if(boundaryCheckEntity(entity))
+                {
                     entity.position.y -= entity.getVelocity();
-                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
-                    {
-                        entity.state = Entity.entityState.LEFT;
-                        entity.position.y += entity.getVelocity();
-                    }
-                    break;
-                case LEFT:
-                    entity.position.x -= entity.getVelocity();
-                    if(boundaryCheckEntity(entity) || checkFrontOfEntity(entity))
-                    {
-                        entity.state = Entity.entityState.UP;
-                        entity.position.x += entity.getVelocity();
-                    }
-                    break;
-                case FREE:
-                    break;
-                default:
-                    break;
-            }
 
-            if(checkFrontOfEntity(entity) && entity.state != original)
-            {
-                continue;
-            }
-            else
-            {
-                return;
-            }
+                    entity.state = Entity.entityState.RIGHT;
+                    entity.position.x += entity.getVelocity();
+                    if(boundaryCheckEntity(entity))
+                    {
+                        entity.position.x -= entity.getVelocity();
+                        entity.state = state_opposite;
+                    }
+                    entity.position.x -= entity.getVelocity();
+                }
+                break;
+            case RIGHT:
+                entity.position.x += entity.getVelocity();
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = Entity.entityState.DOWN;
+                    entity.position.x -= entity.getVelocity();
+                }
+                break;
+            case DOWN:
+                entity.position.y -= entity.getVelocity();
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = Entity.entityState.LEFT;
+                    entity.position.y += entity.getVelocity();
+                }
+                break;
+            case LEFT:
+                entity.position.x -= entity.getVelocity();
+                if(boundaryCheckEntity(entity))
+                {
+                    entity.state = Entity.entityState.UP;
+                    entity.position.x += entity.getVelocity();
+                }
+                break;
+            case FREE:
+                freeEntity(entity);
+                break;
+            default:
+                break;
         }
     }
 

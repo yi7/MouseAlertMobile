@@ -14,7 +14,7 @@ public class Entity
         RIGHT,
         DOWN,
         LEFT,
-        FREE;
+        FREE
     }
 
     public enum entityType
@@ -25,7 +25,7 @@ public class Entity
         CAT_TRACER,
         WALL,
         TILE_BLOCK,
-        TILE_HOME;
+        TILE_HOME
     }
 
     SpriteAnimation spriteAnimation;
@@ -65,6 +65,9 @@ public class Entity
         {
             case CAT_TRACER:
                 velocity = 8;
+                break;
+            case MOUSE_NEUTRAL:
+                velocity = 4;
                 break;
             default:
                 velocity = 0;
