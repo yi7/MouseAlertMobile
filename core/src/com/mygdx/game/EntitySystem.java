@@ -113,6 +113,136 @@ public class EntitySystem
         return null;
     }
 
+    public void updateCollidedEntity(Entity entity, Entity collided_entity, Entity.entityState state)
+    {
+        if(collided_entity != null)
+        {
+            switch(entity.type)
+            {
+                case MOUSE_NEUTRAL:
+                    if(collided_entity.type == Entity.entityType.CAT_TRACER)
+                    {
+                        entity.state = Entity.entityState.FREE;
+                    }
+                    if(collided_entity.type == Entity.entityType.TILE_BLOCK)
+                    {
+                        updateCollidedEntityState(entity, collided_entity, state);
+                    }
+                    break;
+                case CAT_TRACER:
+                    if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
+                    {
+                        collided_entity.state = Entity.entityState.FREE;
+                    }
+                    if(collided_entity.type == Entity.entityType.TILE_BLOCK)
+                    {
+                        updateCollidedEntityState(entity, collided_entity, state);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void updateCollidedEntityState(Entity entity, Entity collided_entity, Entity.entityState state)
+    {
+        Entity temp_entity;
+        switch(state)
+        {
+            case UP:
+                entity.position.y -= entity.getVelocity();
+
+                entity.state = Entity.entityState.RIGHT;
+                entity.position.x += entity.getVelocity();
+                temp_entity = checkFrontOfEntity(entity);
+                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                {
+                    entity.position.x -= entity.getVelocity();
+
+                    entity.state = Entity.entityState.LEFT;
+                    entity.position.x -= entity.getVelocity();
+                    temp_entity = checkFrontOfEntity(entity);
+                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                    {
+                        entity.position.x += entity.getVelocity();
+                        entity.state = Entity.entityState.DOWN;
+                    }
+                    entity.position.x += entity.getVelocity();
+                }
+                entity.position.x -= entity.getVelocity();
+                break;
+            case RIGHT:
+                entity.position.x -= entity.getVelocity();
+
+                entity.state = Entity.entityState.DOWN;
+                entity.position.y -= entity.getVelocity();
+                temp_entity = checkFrontOfEntity(entity);
+                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                {
+                    entity.position.y += entity.getVelocity();
+
+                    entity.state = Entity.entityState.UP;
+                    entity.position.y += entity.getVelocity();
+                    temp_entity = checkFrontOfEntity(entity);
+                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                    {
+                        entity.position.y -= entity.getVelocity();
+                        entity.state = Entity.entityState.LEFT;
+                    }
+                    entity.position.y -= entity.getVelocity();
+                }
+                entity.position.y += entity.getVelocity();
+                break;
+            case DOWN:
+                entity.position.y += entity.getVelocity();
+
+                entity.state = Entity.entityState.LEFT;
+                entity.position.x -= entity.getVelocity();
+                temp_entity = checkFrontOfEntity(entity);
+                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                {
+                    entity.position.x += entity.getVelocity();
+
+                    entity.state = Entity.entityState.RIGHT;
+                    entity.position.x += entity.getVelocity();
+                    temp_entity = checkFrontOfEntity(entity);
+                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                    {
+                        entity.position.x -= entity.getVelocity();
+                        entity.state = Entity.entityState.UP;
+                    }
+                    entity.position.x -= entity.getVelocity();
+                }
+                entity.position.x += entity.getVelocity();
+                break;
+            case LEFT:
+                entity.position.x += entity.getVelocity();
+
+                entity.state = Entity.entityState.UP;
+                entity.position.y += entity.getVelocity();
+                temp_entity = checkFrontOfEntity(entity);
+                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                {
+                    entity.position.y -= entity.getVelocity();
+
+                    entity.state = Entity.entityState.DOWN;
+                    entity.position.y -= entity.getVelocity();
+                    temp_entity = checkFrontOfEntity(entity);
+                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.entityType.TILE_BLOCK))
+                    {
+                        entity.position.y += entity.getVelocity();
+                        entity.state = Entity.entityState.RIGHT;
+                    }
+                    entity.position.y += entity.getVelocity();
+                }
+                entity.position.y -= entity.getVelocity();
+                break;
+            default:
+                break;
+        }
+    }
+
     public void updateEntity(Entity entity)
     {
         if(entity.sprite == null)
@@ -127,63 +257,59 @@ public class EntitySystem
         {
             case UP:
                 entity.position.y += entity.getVelocity();
+
                 collided_entity = checkFrontOfEntity(entity);
                 if(collided_entity != null)
                 {
-                    switch(entity.type)
-                    {
-                        case MOUSE_NEUTRAL:
-                            if(collided_entity.type == Entity.entityType.CAT_TRACER)
-                            {
-                                entity.state = Entity.entityState.FREE;
-                            }
-                            break;
-                        case CAT_TRACER:
-                            if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
-                            {
-                                collided_entity.state = Entity.entityState.FREE;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    updateCollidedEntity(entity, collided_entity, Entity.entityState.UP);
                 }
-                if(boundaryCheckEntity(entity))
-                {
-                    entity.position.y -= entity.getVelocity();
 
-                    entity.state = Entity.entityState.RIGHT;
-                    entity.position.x += entity.getVelocity();
-                    if(boundaryCheckEntity(entity))
-                    {
-                        entity.position.x -= entity.getVelocity();
-                        entity.state = state_opposite;
-                    }
-                    entity.position.x -= entity.getVelocity();
+                if(entity != null && boundaryCheckEntity(entity))
+                {
+                    updateCollidedEntityState(entity, collided_entity, Entity.entityState.UP);
                 }
+
                 break;
             case RIGHT:
                 entity.position.x += entity.getVelocity();
-                if(boundaryCheckEntity(entity))
+
+                collided_entity = checkFrontOfEntity(entity);
+                if(collided_entity != null)
                 {
-                    entity.state = Entity.entityState.DOWN;
-                    entity.position.x -= entity.getVelocity();
+                    updateCollidedEntity(entity, collided_entity, Entity.entityState.RIGHT);
+                }
+
+                if(entity != null && boundaryCheckEntity(entity))
+                {
+                    updateCollidedEntityState(entity, collided_entity, Entity.entityState.RIGHT);
                 }
                 break;
             case DOWN:
                 entity.position.y -= entity.getVelocity();
-                if(boundaryCheckEntity(entity))
+
+                collided_entity = checkFrontOfEntity(entity);
+                if(collided_entity != null)
                 {
-                    entity.state = Entity.entityState.LEFT;
-                    entity.position.y += entity.getVelocity();
+                    updateCollidedEntity(entity, collided_entity, Entity.entityState.DOWN);
+                }
+
+                if(entity != null && boundaryCheckEntity(entity))
+                {
+                    updateCollidedEntityState(entity, collided_entity, Entity.entityState.DOWN);
                 }
                 break;
             case LEFT:
                 entity.position.x -= entity.getVelocity();
-                if(boundaryCheckEntity(entity))
+
+                collided_entity = checkFrontOfEntity(entity);
+                if(collided_entity != null)
                 {
-                    entity.state = Entity.entityState.UP;
-                    entity.position.x += entity.getVelocity();
+                    updateCollidedEntity(entity, collided_entity, Entity.entityState.LEFT);
+                }
+
+                if(entity != null && boundaryCheckEntity(entity))
+                {
+                    updateCollidedEntityState(entity, collided_entity, Entity.entityState.LEFT);
                 }
                 break;
             case FREE:
