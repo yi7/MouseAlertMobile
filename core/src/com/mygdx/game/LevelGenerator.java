@@ -48,7 +48,7 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     float phoneHeight;
 
     final int TILE_SIZE = 64;
-    final int TILE_MAP_HEIGHT = 9;
+    final int TILE_MAP_HEIGHT = 7;
     final int TPL = 9; //tiles per line
 
     public LevelGenerator(MiceAlert game)
@@ -70,11 +70,11 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
 
         Gdx.input.setInputProcessor(this);
 
-        tilemap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_00.tmx");
+        tilemap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_01.tmx");
         tilemapRenderer = new OrthogonalTiledMapRenderer(tilemap, phoneScale);
         tilemapObjectRenderer = new TilemapSystem();
         tilemapObjectRenderer.tilemapSetScale(phoneScale);
-        mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
+        //mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
 
         mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
         for(MapObject object : mapObjectsTiles)
@@ -129,11 +129,6 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         deltaTime = 0f;
     }
 
-    public void generateLevel()
-    {
-
-    }
-
     @Override
     public void render(float delta)
     {
@@ -152,7 +147,7 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         game.batch.setProjectionMatrix(camera.combined);
 
         tilemapObjectRenderer.tilemapRenderObject(mapObjectsTiles, game.batch, deltaTime);
-        tilemapObjectRenderer.tilemapRenderObject(mapObjectsWalls, game.batch, deltaTime);
+        //tilemapObjectRenderer.tilemapRenderObject(mapObjectsWalls, game.batch, deltaTime);
 
         entitySystem.drawAllEntity(deltaTime, game.batch);
 

@@ -322,12 +322,20 @@ public class EntitySystem
 
     public boolean boundaryCheckEntity(Entity entity)
     {
-        //Gdx.app.log("Yokaka", entity.position.y * entity.sprite.getScale()+entity.frameSize.y  * entity.sprite.getScale()+ " > " + Gdx.graphics.getHeight());
-        if(entity.position.y * entity.getScale() + entity.frameSize.y * entity.getScale() > Gdx.graphics.getHeight())
+        //Gdx.app.log("Yokaka", entity.position.x * entity.sprite.getScale()+entity.frameSize.x  * entity.sprite.getScale()+ " > " + Gdx.graphics.getWidth());
+        float pointX = entity.position.x * entity.getScale();
+        float pointY = entity.position.y * entity.getScale();
+        float frameX = entity.frameSize.x * entity.getScale();
+        float frameY = entity.frameSize.y * entity.getScale();
+
+        //64: Tile frame size, 9: Tiles per line
+        float mapWidth = 64 * 9 * entity.getScale();
+
+        if(pointY + frameY > Gdx.graphics.getHeight())
         {
             return true;
         }
-        else if(entity.position.x * entity.getScale() + entity.frameSize.x * entity.getScale() > 576f * 2.5)
+        else if(pointX + frameX > mapWidth)
         {
             return true;
         }

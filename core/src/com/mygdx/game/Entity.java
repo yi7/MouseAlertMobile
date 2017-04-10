@@ -64,7 +64,7 @@ public class Entity
         switch(type)
         {
             case CAT_TRACER:
-                velocity = 8;
+                velocity = 4;
                 break;
             case MOUSE_NEUTRAL:
                 velocity = 4;
