@@ -47,6 +47,10 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     float phoneWidth;
     float phoneHeight;
 
+    final int TILE_SIZE = 64;
+    final int TILE_MAP_HEIGHT = 9;
+    final int TPL = 9; //tiles per line
+
     public LevelGenerator(MiceAlert game)
     {
         this.game = game;
@@ -58,7 +62,7 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     {
         phoneWidth = Gdx.graphics.getWidth();
         phoneHeight = Gdx.graphics.getHeight();
-        phoneScale = phoneHeight / 576f; //576 = 64px * 9tiles
+        phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
 
         camera = new OrthographicCamera(phoneWidth, phoneHeight);
         camera.setToOrtho(false, phoneWidth, phoneHeight);
@@ -178,6 +182,15 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
+        if((screenX / phoneScale) <= TILE_SIZE * TPL)
+        {
+            int mapX = Math.round(screenX / TILE_SIZE / phoneScale);
+            int mapY = Math.round(screenY / TILE_SIZE / phoneScale);
+            int tile_position = TPL * mapY + mapX;
+            Gdx.app.log("Yokaka", screenX / phoneScale + ", " + screenY / phoneScale);
+            Gdx.app.log("Yokaka", mapX + ", " + mapY);
+            Gdx.app.log("Yokaka", tile_position + "");
+        }
         return false;
     }
 
