@@ -30,6 +30,7 @@ public class TilemapSystem
             {
                 position = new Vector2(j * 64, i * 64);
                 positionMap.put(index++, position);
+                Gdx.app.log("Yokaka", position.x + ", " + position.y);
             }
         }
     }

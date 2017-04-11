@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -21,7 +23,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class LevelGenerator extends ScreenAdapter implements InputProcessor, Screen
+public class LevelGenerator extends ScreenAdapter implements GestureListener, Screen
 {
     MiceAlert game;
     OrthographicCamera camera;
@@ -70,7 +72,8 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
         camera.setToOrtho(false, phoneWidth, phoneHeight);
         camera.update();
 
-        Gdx.input.setInputProcessor(this);
+        GestureDetector gestureDetector = new GestureDetector(this);
+        Gdx.input.setInputProcessor(gestureDetector);
 
         tilemap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_01.tmx");
         tilemapRenderer = new OrthogonalTiledMapRenderer(tilemap, phoneScale);
@@ -163,72 +166,6 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     }
 
     @Override
-    public boolean keyDown(int keycode)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button)
-    {
-        int mapX;
-        int mapY;
-        int tile_position;
-        Vector2 tile_coordinate;
-
-        if((screenX / phoneScale) <= TILE_SIZE * TPL)
-        {
-            mapX = Math.round(screenX / TILE_SIZE / phoneScale);
-            mapY = Math.round(screenY / TILE_SIZE / phoneScale);
-            tile_position = TPL * mapY + mapX;
-
-            tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
-            Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
-            Gdx.app.log("Yokaka", mapX + ", " + mapY);
-            Gdx.app.log("Yokaka", tile_position + "");
-        }
-
-
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount)
-    {
-        return false;
-    }
-
-    @Override
     public void show()
     {
 
@@ -236,6 +173,111 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
 
     @Override
     public void hide()
+    {
+
+    }
+
+    @Override
+    public boolean touchDown(float x, float y, int pointer, int button)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean tap(float x, float y, int count, int button)
+    {
+        int mapX;
+        int mapY;
+        int tile_position;
+        Entity entityTileArrow;
+        Vector2 tile_coordinate;
+        Gdx.app.log("Yokaka", (y / phoneScale) + " " + (TILE_SIZE * 7));
+        if((x / phoneScale) <= (TILE_SIZE * TPL))
+        {
+            mapX = Math.round(x / TILE_SIZE / phoneScale);
+            mapY = Math.round(y / TILE_SIZE / phoneScale);
+            tile_position = TPL * mapY + mapX;
+
+            if(tile_position < 63)
+            {
+                tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
+                entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
+                entityTileArrow.setPosition(tile_coordinate.x, tile_coordinate.y);
+                entityTileArrow.setFrameSize(64f, 64f);
+                //entitySystem.newEntity(entityTileArrow);
+            }
+
+            //Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
+            //Gdx.app.log("Yokaka", mapX + ", " + mapY);
+            //Gdx.app.log("Yokaka", tile_position + "");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean longPress(float x, float y)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean fling(float velocityX, float velocityY, int button)
+    {
+        if(Math.abs(velocityX) > Math.abs(velocityY))
+        {
+            if(velocityX > 0)
+            {
+                //right
+                Gdx.app.log("Yokaka", "right");
+            }
+            else
+            {
+                //left
+                Gdx.app.log("Yokaka", "left");
+            }
+        }
+        else
+        {
+            if(velocityY > 0)
+            {
+                //down
+                Gdx.app.log("Yokaka", "down");
+            }
+            else
+            {
+                //up
+                Gdx.app.log("Yokaka", "up");
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean pan(float x, float y, float deltaX, float deltaY)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean panStop(float x, float y, int pointer, int button)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean zoom(float initialDistance, float distance)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2)
+    {
+        return false;
+    }
+
+    @Override
+    public void pinchStop()
     {
 
     }
