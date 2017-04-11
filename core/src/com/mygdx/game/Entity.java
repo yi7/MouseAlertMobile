@@ -25,7 +25,8 @@ public class Entity
         CAT_TRACER,
         WALL,
         TILE_BLOCK,
-        TILE_HOME
+        TILE_HOME,
+        TILE_ARROW
     }
 
     SpriteAnimation spriteAnimation;

@@ -33,8 +33,10 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
 
     Texture textureCatTracer;
     Texture textureMouseNeutral;
+    Texture textureTileArrow;
     Sprite spriteCatTracer;
     Sprite spriteMouseNeutral;
+    Sprite spriteTileArrow;
     SpriteAnimation spriteAnimationCatTracer;
     MapObjects mapObjectsCatTracer;
 
@@ -126,6 +128,10 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
             }
         }
 
+        textureTileArrow = new Texture("Assets_Image/arrow.png");
+        spriteTileArrow = new Sprite(textureTileArrow, 8, 1);
+        spriteTileArrow.setScale(phoneScale);
+
         deltaTime = 0f;
     }
 
@@ -177,15 +183,24 @@ public class LevelGenerator extends ScreenAdapter implements InputProcessor, Scr
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button)
     {
+        int mapX;
+        int mapY;
+        int tile_position;
+        Vector2 tile_coordinate;
+
         if((screenX / phoneScale) <= TILE_SIZE * TPL)
         {
-            int mapX = Math.round(screenX / TILE_SIZE / phoneScale);
-            int mapY = Math.round(screenY / TILE_SIZE / phoneScale);
-            int tile_position = TPL * mapY + mapX;
-            Gdx.app.log("Yokaka", screenX / phoneScale + ", " + screenY / phoneScale);
+            mapX = Math.round(screenX / TILE_SIZE / phoneScale);
+            mapY = Math.round(screenY / TILE_SIZE / phoneScale);
+            tile_position = TPL * mapY + mapX;
+
+            tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
+            Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
             Gdx.app.log("Yokaka", mapX + ", " + mapY);
             Gdx.app.log("Yokaka", tile_position + "");
         }
+
+
         return false;
     }
 
