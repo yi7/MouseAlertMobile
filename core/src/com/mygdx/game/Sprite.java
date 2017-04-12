@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class Sprite
 {
     Texture texture;
+    TextureRegion[][] textureRegion;
     int cols;
     int rows;
     float scale;
@@ -23,6 +24,12 @@ public class Sprite
         this.texture = texture;
         this.cols = cols;
         this.rows = rows;
+        textureRegion = TextureRegion.split
+        (
+            texture,
+            texture.getWidth() / cols,
+            texture.getHeight() / rows
+        );
     }
 
     public void setScale(float scale)
@@ -35,23 +42,51 @@ public class Sprite
         return scale;
     }
 
-    public TextureRegion[] generateSpriteTextureRegion()
+    public TextureRegion[] generateSpriteTextureRegionUp()
     {
-        TextureRegion[][] temp = TextureRegion.split
-        (
-            texture,
-            texture.getWidth() / cols,
-            texture.getHeight() / 4 / rows
-        );
-        TextureRegion[] textureRegion = new TextureRegion[cols * rows];
+        TextureRegion[] temp = new TextureRegion[cols];
         int index = 0;
-        for(int i = 0; i < rows; i++)
+
+        for(int i = 0; i < cols; i++)
         {
-            for(int j = 0; j < cols; j++)
-            {
-                textureRegion[index++] = temp[i][j];
-            }
+            temp[index++] = textureRegion[0][i];
         }
-        return textureRegion;
+        return temp;
+    }
+
+    public TextureRegion[] generateSpriteTextureRegionRight()
+    {
+        TextureRegion[] temp = new TextureRegion[cols];
+        int index = 0;
+
+        for(int i = 0; i < cols; i++)
+        {
+            temp[index++] = textureRegion[1][i];
+        }
+        return temp;
+    }
+
+    public TextureRegion[] generateSpriteTextureRegionDown()
+    {
+        TextureRegion[] temp = new TextureRegion[cols];
+        int index = 0;
+
+        for(int i = 0; i < cols; i++)
+        {
+            temp[index++] = textureRegion[2][i];
+        }
+        return temp;
+    }
+
+    public TextureRegion[] generateSpriteTextureRegionLeft()
+    {
+        TextureRegion[] temp = new TextureRegion[cols];
+        int index = 0;
+
+        for(int i = 0; i < cols; i++)
+        {
+            temp[index++] = textureRegion[3][i];
+        }
+        return temp;
     }
 }

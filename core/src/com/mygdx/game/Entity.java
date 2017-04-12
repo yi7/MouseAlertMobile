@@ -30,6 +30,11 @@ public class Entity
     }
 
     SpriteAnimation spriteAnimation;
+    SpriteAnimation spriteAnimationUp;
+    SpriteAnimation spriteAnimationRight;
+    SpriteAnimation spriteAnimationDown;
+    SpriteAnimation spriteAnimationLeft;
+
     Sprite sprite;
     Entity.entityState state;
     Entity.entityType type;
@@ -55,13 +60,6 @@ public class Entity
         this.sprite = sprite;
         this.scale = scale;
 
-        if(sprite != null)
-        {
-            spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
-            spriteAnimation.setScale(sprite.getScale());
-            spriteAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        }
-
         switch(type)
         {
             case CAT_TRACER:
@@ -74,6 +72,26 @@ public class Entity
                 velocity = 0;
                 break;
         }
+    }
+
+    public void generateSpriteTextureRegion()
+    {
+        if(sprite != null)
+        {
+            spriteAnimationUp = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionUp(), sprite.getScale());
+            spriteAnimationRight = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionRight(), sprite.getScale());
+            spriteAnimationDown = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionDown(), sprite.getScale());
+            spriteAnimationLeft = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionLeft(), sprite.getScale());
+
+            //spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
+            //spriteAnimation.setScale(sprite.getScale());
+            spriteAnimationUp.setPlayMode(Animation.PlayMode.LOOP);
+            spriteAnimationRight.setPlayMode(Animation.PlayMode.LOOP);
+            spriteAnimationDown.setPlayMode(Animation.PlayMode.LOOP);
+            spriteAnimationLeft.setPlayMode(Animation.PlayMode.LOOP);
+        }
+
+
     }
 
     public float getScale()
@@ -124,104 +142,21 @@ public class Entity
     {
         if(sprite != null)
         {
-            spriteAnimation.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
-        }
-    }
-
-    public void updateEntity(Entity entity)
-    {
-        if(entity.sprite == null)
-        {
-            return;
-        }
-        /*Gdx.app.log("Yokaka", entity.position.y * 2.5 + "");
-        Gdx.app.log("Yokaka", entity.frameSize.y + "");
-        Gdx.app.log("Yokaka", Gdx.graphics.getHeight() + "");
-        Gdx.app.log("Yoka", "---------------");*/
-        Entity.entityState original = entity.state;
-        switch(entity.state)
-        {
-            case UP:
-
-                entity.position.y += velocity;
-                if(boundaryCheckEntity(entity))
-                {
-                    entity.state = entityState.RIGHT;
-                    entity.position.y -= velocity;
-                }
-                break;
-            case RIGHT:
-                entity.position.x += velocity;
-                if(boundaryCheckEntity(entity))
-                {
-                    entity.state = entityState.DOWN;
-                    entity.position.x -= velocity;
-                }
-                break;
-            case DOWN:
-                entity.position.y -= velocity;
-                if(boundaryCheckEntity(entity))
-                {
-                    entity.state = entityState.LEFT;
-                    entity.position.y += velocity;
-                }
-                break;
-            case LEFT:
-                entity.position.x -= velocity;
-                if(boundaryCheckEntity(entity))
-                {
-                    entity.state = entityState.UP;
-                    entity.position.x += velocity;
-                }
-                break;
-            case FREE:
-                break;
-            default:
-                break;
-        }
-    }
-
-    public void updateCatEntity(Entity entity)
-    {
-        if(entity.sprite == null)
-        {
-            return;
-        }
-
-        switch(entity.type)
-        {
-            case CAT_TRACER:
-                return;
-            case TILE_BLOCK:
-
-                break;
-            default:
-                break;
-        }
-    }
-
-    public boolean boundaryCheckEntity(Entity entity)
-    {
-        //Gdx.app.log("Yokaka", entity.position.y * entity.sprite.getScale()+entity.frameSize.y  * entity.sprite.getScale()+ " > " + Gdx.graphics.getHeight());
-        if(entity.position.y * scale + entity.frameSize.y * scale > Gdx.graphics.getHeight())
-        {
-            return true;
-        }
-        else if(entity.position.x * scale + entity.frameSize.x * scale > 576f * 2.5)
-        {
-            return true;
-        }
-        else if(entity.position.y < 0)
-        {
-            return true;
-        }
-        else if(entity.position.x < 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
+            switch(state)
+            {
+                case UP:
+                    spriteAnimationUp.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+                    break;
+                case RIGHT:
+                    spriteAnimationRight.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+                    break;
+                case DOWN:
+                    spriteAnimationDown.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+                    break;
+                case LEFT:
+                    spriteAnimationLeft.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
+                    break;
+            }
         }
     }
 }

@@ -97,9 +97,9 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 
         textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
         textureMouseNeutral = new Texture("Assets_Image/MiceAlert_Sprite_NeutralMouse.png");
-        spriteCatTracer = new Sprite(textureCatTracer, 8, 1);
+        spriteCatTracer = new Sprite(textureCatTracer, 8, 4);
         spriteCatTracer.setScale(phoneScale);
-        spriteMouseNeutral = new Sprite(textureMouseNeutral, 8, 1);
+        spriteMouseNeutral = new Sprite(textureMouseNeutral, 8, 4);
         spriteMouseNeutral.setScale(phoneScale);
         mapObjectsCatTracer = tilemap.getLayers().get("Layer_Spawn_Cats").getObjects();
         for(MapObject object : mapObjectsCatTracer)
@@ -121,6 +121,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 temp_entity.setPosition(rect.getX(), rect.getY());
                 temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
                 temp_entity.setState(object.getProperties().get("State", String.class));
+                temp_entity.generateSpriteTextureRegion();
                 entitySystem.newEntity(temp_entity);
 
                 //Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
@@ -132,7 +133,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         }
 
         textureTileArrow = new Texture("Assets_Image/arrow.png");
-        spriteTileArrow = new Sprite(textureTileArrow, 8, 1);
+        spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
         spriteTileArrow.setScale(phoneScale);
 
         deltaTime = 0f;
@@ -204,6 +205,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
                 entityTileArrow.setPosition(tile_coordinate.x, tile_coordinate.y);
                 entityTileArrow.setFrameSize(64f, 64f);
+                entityTileArrow.generateSpriteTextureRegion();
                 //entitySystem.newEntity(entityTileArrow);
             }
 
@@ -211,6 +213,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
             //Gdx.app.log("Yokaka", mapX + ", " + mapY);
             //Gdx.app.log("Yokaka", tile_position + "");
         }
+        Gdx.app.log("Yokaka", "test");
         return false;
     }
 

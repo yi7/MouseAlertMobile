@@ -9,9 +9,10 @@ public class SpriteAnimation extends Animation
 {
     float scale;
 
-    public SpriteAnimation(float frameDuration, TextureRegion[] keyFrames)
+    public SpriteAnimation(float frameDuration, TextureRegion[] keyFrames, float scale)
     {
         super(frameDuration, keyFrames);
+        this.scale = scale;
     }
 
     public void setScale(float scale)
