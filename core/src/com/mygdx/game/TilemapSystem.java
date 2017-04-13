@@ -24,13 +24,13 @@ public class TilemapSystem
         Vector2 position;
         positionMap = new HashMap<Integer, Vector2>();
 
-        for(int i = 0; i < TILEMAP_HEIGHT; i++)
+        for(int i = TILEMAP_HEIGHT; i > 0; i--)
         {
             for(int j = 0; j < TILEMAP_WIDTH; j++)
             {
-                position = new Vector2(j * 64, i * 64);
+                position = new Vector2(j * 64, (i-1) * 64);
+                Gdx.app.log("Yokaka", j*64 + ",. " + (i-1)*64);
                 positionMap.put(index++, position);
-                Gdx.app.log("Yokaka", position.x + ", " + position.y);
             }
         }
     }

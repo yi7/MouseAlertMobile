@@ -39,7 +39,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     Sprite spriteCatTracer;
     Sprite spriteMouseNeutral;
     Sprite spriteTileArrow;
-    SpriteAnimation spriteAnimationCatTracer;
+    Entity entityTileArrow;
     MapObjects mapObjectsCatTracer;
 
     MapObjects test;
@@ -181,39 +181,40 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     @Override
     public boolean touchDown(float x, float y, int pointer, int button)
     {
-        return false;
-    }
-
-    @Override
-    public boolean tap(float x, float y, int count, int button)
-    {
         int mapX;
         int mapY;
         int tile_position;
-        Entity entityTileArrow;
+
         Vector2 tile_coordinate;
-        Gdx.app.log("Yokaka", (y / phoneScale) + " " + (TILE_SIZE * 7));
+
         if((x / phoneScale) <= (TILE_SIZE * TPL))
         {
-            mapX = Math.round(x / TILE_SIZE / phoneScale);
-            mapY = Math.round(y / TILE_SIZE / phoneScale);
+            mapX = (int)(x / TILE_SIZE / phoneScale);
+            mapY = (int)(y / TILE_SIZE / phoneScale);
             tile_position = TPL * mapY + mapX;
 
             if(tile_position < 63)
             {
                 tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
                 entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
-                entityTileArrow.setPosition(tile_coordinate.x, tile_coordinate.y);
+                entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
                 entityTileArrow.setFrameSize(64f, 64f);
                 entityTileArrow.generateSpriteTextureRegion();
                 //entitySystem.newEntity(entityTileArrow);
+
+                Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
             }
 
-            //Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
+
             //Gdx.app.log("Yokaka", mapX + ", " + mapY);
             //Gdx.app.log("Yokaka", tile_position + "");
         }
-        Gdx.app.log("Yokaka", "test");
+        return false;
+    }
+
+    @Override
+    public boolean tap(float x, float y, int count, int button)
+    {
         return false;
     }
 
@@ -226,30 +227,41 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     @Override
     public boolean fling(float velocityX, float velocityY, int button)
     {
-        if(Math.abs(velocityX) > Math.abs(velocityY))
+        if(entityTileArrow != null)
         {
-            if(velocityX > 0)
+            if(Math.abs(velocityX) > Math.abs(velocityY))
             {
-                //right
-                Gdx.app.log("Yokaka", "right");
+                if(velocityX > 0)
+                {
+                    //right
+                    entityTileArrow.setState("RIGHT");
+                    entitySystem.newEntity(entityTileArrow);
+                    Gdx.app.log("Yokaka", "right");
+                }
+                else
+                {
+                    //left
+                    entityTileArrow.setState("LEFT");
+                    entitySystem.newEntity(entityTileArrow);
+                    Gdx.app.log("Yokaka", "left");
+                }
             }
             else
             {
-                //left
-                Gdx.app.log("Yokaka", "left");
-            }
-        }
-        else
-        {
-            if(velocityY > 0)
-            {
-                //down
-                Gdx.app.log("Yokaka", "down");
-            }
-            else
-            {
-                //up
-                Gdx.app.log("Yokaka", "up");
+                if(velocityY > 0)
+                {
+                    //down
+                    entityTileArrow.setState("DOWN");
+                    entitySystem.newEntity(entityTileArrow);
+                    Gdx.app.log("Yokaka", "down");
+                }
+                else
+                {
+                    //up
+                    entityTileArrow.setState("UP");
+                    entitySystem.newEntity(entityTileArrow);
+                    Gdx.app.log("Yokaka", "up");
+                }
             }
         }
         return false;
