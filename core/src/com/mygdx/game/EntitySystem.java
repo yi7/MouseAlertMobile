@@ -119,7 +119,7 @@ public class EntitySystem
         }
     }
 
-    public boolean checkAllTile(Vector2 tapped_coordinate)
+    public boolean checkAllTile(Vector2 coordinate)
     {
         for(int i = 0; i < entityList.length; i++)
         {
@@ -128,8 +128,27 @@ public class EntitySystem
                 continue;
             }
 
-            if( entityList[i].position.x == tapped_coordinate.x &&
-                entityList[i].position.y == tapped_coordinate.y)
+            if( entityList[i].position.x == coordinate.x &&
+                entityList[i].position.y == coordinate.y)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkArrowTile(Vector2 coordinate)
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if( entityList[i].position.x == coordinate.x &&
+                entityList[i].position.y == coordinate.y &&
+                entityList[i].type == Entity.entityType.TILE_ARROW)
             {
                 return true;
             }
@@ -160,6 +179,10 @@ public class EntitySystem
             switch(entity.type)
             {
                 case MOUSE_NEUTRAL:
+                    if(collided_entity.type == Entity.entityType.TILE_ARROW && checkArrowTile(entity.position))
+                    {
+                        entity.state = collided_entity.state;
+                    }
                     if(collided_entity.type == Entity.entityType.CAT_TRACER)
                     {
                         entity.state = Entity.entityState.FREE;
@@ -170,6 +193,10 @@ public class EntitySystem
                     }
                     break;
                 case CAT_TRACER:
+                    if(collided_entity.type == Entity.entityType.TILE_ARROW && checkArrowTile(entity.position))
+                    {
+                        entity.state = collided_entity.state;
+                    }
                     if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
                     {
                         collided_entity.state = Entity.entityState.FREE;
@@ -179,7 +206,15 @@ public class EntitySystem
                         updateCollidedEntityState(entity, collided_entity, state);
                     }
                     break;
-                default:
+                case TILE_ARROW:
+                    if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL && checkArrowTile(collided_entity.position))
+                    {
+                        collided_entity.state = entity.state;
+                    }
+                    if(collided_entity.type == Entity.entityType.CAT_TRACER && checkArrowTile(collided_entity.position))
+                    {
+                        collided_entity.state = entity.state;
+                    }
                     break;
             }
         }
@@ -188,6 +223,7 @@ public class EntitySystem
     public void updateCollidedEntityState(Entity entity, Entity collided_entity, Entity.entityState state)
     {
         Entity temp_entity;
+
         switch(state)
         {
             case UP:
@@ -304,7 +340,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.UP);
                 }
 
-                if(entity != null && boundaryCheckEntity(entity))
+                else if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.UP);
                 }
@@ -319,7 +355,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.RIGHT);
                 }
 
-                if(entity != null && boundaryCheckEntity(entity))
+                else if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.RIGHT);
                 }
@@ -333,7 +369,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.DOWN);
                 }
 
-                if(entity != null && boundaryCheckEntity(entity))
+                else if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.DOWN);
                 }
@@ -347,15 +383,13 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.LEFT);
                 }
 
-                if(entity != null && boundaryCheckEntity(entity))
+                else if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.LEFT);
                 }
                 break;
             case FREE:
                 freeEntity(entity);
-                break;
-            default:
                 break;
         }
     }
