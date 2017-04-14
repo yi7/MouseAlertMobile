@@ -29,7 +29,6 @@ public class TilemapSystem
             for(int j = 0; j < TILEMAP_WIDTH; j++)
             {
                 position = new Vector2(j * 64, (i-1) * 64);
-                Gdx.app.log("Yokaka", j*64 + ",. " + (i-1)*64);
                 positionMap.put(index++, position);
             }
         }

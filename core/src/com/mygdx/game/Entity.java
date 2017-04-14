@@ -136,6 +136,10 @@ public class Entity
         {
             this.state = entityState.LEFT;
         }
+        else if(passedState.equals("FREE"))
+        {
+            this.state = entityState.FREE;
+        }
     }
 
     public void drawEntity(float deltaTime, Batch batch, float x, float y)

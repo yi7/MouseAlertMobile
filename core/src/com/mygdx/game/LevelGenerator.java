@@ -36,8 +36,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     Texture textureCatTracer;
     Texture textureMouseNeutral;
     Texture textureTileArrow;
+    Texture textureTileBlock;
     Sprite spriteCatTracer;
     Sprite spriteMouseNeutral;
+    Sprite spriteTileBlock;
     Sprite spriteTileArrow;
     Entity entityTileArrow;
     MapObjects mapObjectsCatTracer;
@@ -81,15 +83,20 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         tilemapObjectRenderer.tilemapSetScale(phoneScale);
         //mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
 
+        textureTileBlock = new Texture("Assets_Image/Block.png");
+        spriteTileBlock = new Sprite(textureTileBlock, 8, 4);
+        spriteTileBlock.setScale(phoneScale);
         mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
         for(MapObject object : mapObjectsTiles)
         {
             if(object instanceof  RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                Entity entityTileBlock = new Entity(Entity.entityType.TILE_BLOCK, null, phoneScale);
+                Entity entityTileBlock = new Entity(Entity.entityType.TILE_BLOCK, spriteTileBlock, phoneScale);
                 entityTileBlock.setPosition(rect.getX(), rect.getY());
                 entityTileBlock.setFrameSize(rect.getWidth(), rect.getHeight());
+                entityTileBlock.setState("UP");
+                entityTileBlock.generateSpriteTextureRegion();
                 //Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
                 entitySystem.newEntity(entityTileBlock);
             }
@@ -132,7 +139,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
             }
         }
 
-        textureTileArrow = new Texture("Assets_Image/arrow.png");
+        textureTileArrow = new Texture("Assets_Image/Arrow.png");
         spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
         spriteTileArrow.setScale(phoneScale);
 
@@ -196,17 +203,26 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
             if(tile_position < 63)
             {
                 tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
-                entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
-                entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
-                entityTileArrow.setFrameSize(64f, 64f);
-                entityTileArrow.generateSpriteTextureRegion();
+                if(!entitySystem.checkAllTile(tile_coordinate))
+                {
+                    Gdx.app.log("Yokaka", "No Tile");
+                    entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
+                    entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
+                    entityTileArrow.setFrameSize(64f, 64f);
+                    entityTileArrow.generateSpriteTextureRegion();
+                }
+                else
+                {
+                    Gdx.app.log("Yokaka", "Exist");
+                }
+
                 //entitySystem.newEntity(entityTileArrow);
 
-                Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
+                //Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
             }
 
 
-            //Gdx.app.log("Yokaka", mapX + ", " + mapY);
+            //Gdx.app.log("Yokaka", "Touch");
             //Gdx.app.log("Yokaka", tile_position + "");
         }
         return false;
@@ -215,6 +231,27 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     @Override
     public boolean tap(float x, float y, int count, int button)
     {
+        int mapX;
+        int mapY;
+        int tile_position;
+        Entity entity;
+
+        Vector2 tile_coordinate;
+
+        if((x / phoneScale) <= (TILE_SIZE * TPL))
+        {
+            mapX = (int)(x / TILE_SIZE / phoneScale);
+            mapY = (int)(y / TILE_SIZE / phoneScale);
+            tile_position = TPL * mapY + mapX;
+
+            if(tile_position < 63)
+            {
+                tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
+                entitySystem.tapTile(tile_coordinate);
+            }
+
+            Gdx.app.log("Yokaka", "Touch");
+        }
         return false;
     }
 

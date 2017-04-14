@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
 
 public class EntitySystem
 {
@@ -40,9 +41,29 @@ public class EntitySystem
 
     public void drawAllEntity(float deltaTime, Batch batch)
     {
-        for(int i = 0; i < entityList.length; i++)
+        for(int i = 0; i < entityList.length; i++) //Draws Arrows First
         {
             if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if(entityList[i].type != Entity.entityType.TILE_ARROW)
+            {
+                continue;
+            }
+
+            entityList[i].drawEntity(deltaTime, batch, entityList[i].position.x, entityList[i].position.y);
+        }
+
+        for(int i = 0; i < entityList.length; i++) //Draws
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if(entityList[i].type == Entity.entityType.TILE_ARROW)
             {
                 continue;
             }
@@ -60,25 +81,8 @@ public class EntitySystem
             {
                 continue;
             }
-            //entityList[i].updateEntity(entityList[i]);
 
-            //entity = this.collisionCheckEntity(entityList[i]);
             updateEntity(entityList[i]);
-            /*if(entity != null)
-            {
-                Gdx.app.log("Yokaka", "Test");
-
-                switch(entity.type)
-                {
-                    case CAT_TRACER:
-                        //entity.updateCatEntity(entityList[i]);
-                        break;
-                    case WALL:
-                        break;
-                    default:
-                        break;
-                }
-            }*/
         }
     }
 
@@ -95,6 +99,42 @@ public class EntitySystem
         {
             return null;
         }
+    }
+
+    public void tapTile(Vector2 tapped_coordinate)
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if( entityList[i].position.x == tapped_coordinate.x &&
+                entityList[i].position.y == tapped_coordinate.y &&
+                entityList[i].type == Entity.entityType.TILE_ARROW)
+            {
+                entityList[i].setState("FREE");
+            }
+        }
+    }
+
+    public boolean checkAllTile(Vector2 tapped_coordinate)
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if( entityList[i].position.x == tapped_coordinate.x &&
+                entityList[i].position.y == tapped_coordinate.y)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Entity.entityState getOppositeState(Entity.entityState state)
