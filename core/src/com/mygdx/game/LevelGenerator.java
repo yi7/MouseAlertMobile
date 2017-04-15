@@ -69,12 +69,21 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     final int TILE_MAP_HEIGHT = 7;
     final int TPL = 9; //tiles per line
 
+    public enum LevelState
+    {
+        STANDBY,
+        PLAY,
+        RESET,
+        FINISH
+    }
+    LevelState levelState;
+
     public LevelGenerator(MiceAlert game)
     {
         this.game = game;
         entitySystem = new EntitySystem();
         stage = new Stage();
-
+        levelState = LevelState.STANDBY;
         phoneWidth = Gdx.graphics.getWidth();
         phoneHeight = Gdx.graphics.getHeight();
         phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
@@ -120,6 +129,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 entityTileBlock.setPosition(rect.getX(), rect.getY());
                 entityTileBlock.setFrameSize(rect.getWidth(), rect.getHeight());
                 entityTileBlock.setState("UP");
+                entityTileBlock.setOriginalState("UP");
                 entityTileBlock.generateSpriteTextureRegion();
                 //Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
                 entitySystem.newEntity(entityTileBlock);
@@ -152,6 +162,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 temp_entity.setPosition(rect.getX(), rect.getY());
                 temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
                 temp_entity.setState(object.getProperties().get("State", String.class));
+                temp_entity.setOriginalState(object.getProperties().get("State", String.class));
                 temp_entity.generateSpriteTextureRegion();
                 entitySystem.newEntity(temp_entity);
             }
@@ -185,12 +196,17 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 
         stage.draw();
 
-        entitySystem.updateAllEntity();
+        entitySystem.updateAllEntity(this);
     }
 
     public float getLevelWidth()
     {
         return TILE_SIZE * TPL * phoneScale;
+    }
+
+    public void setLevelState(LevelState levelState)
+    {
+        this.levelState = levelState;
     }
 
     public float getScale()

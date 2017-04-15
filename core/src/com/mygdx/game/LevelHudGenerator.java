@@ -53,20 +53,6 @@ public class LevelHudGenerator
 
     public Stage getHud()
     {
-        /*stubImage.addAction(
-                Actions.sequence(
-                        Actions.alpha(0),
-                        Actions.fadeIn(1f),
-                        Actions.delay(4)));
-        stubImage.addListener(new ClickListener()
-        {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-            {
-                Gdx.app.log("Yokaka", "Stub Test");
-                return true;
-            }
-        });
-        */
         stubImage.setPosition(level.getLevelWidth(), 0);
         stage.addActor(stubImage);
 
@@ -75,6 +61,7 @@ public class LevelHudGenerator
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
                 Gdx.app.log("Yokaka", "Play");
+                level.setLevelState(LevelGenerator.LevelState.PLAY);
                 return true;
             }
         });
@@ -84,6 +71,7 @@ public class LevelHudGenerator
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
                 Gdx.app.log("Yokaka", "Reset");
+                level.setLevelState(LevelGenerator.LevelState.RESET);
                 return true;
             }
         });

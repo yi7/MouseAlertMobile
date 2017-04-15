@@ -72,7 +72,7 @@ public class EntitySystem
         }
     }
 
-    public void updateAllEntity()
+    public void updateAllEntity(LevelGenerator level)
     {
         Entity entity;
         for(int i = 0; i < entityList.length; i++)
@@ -82,8 +82,73 @@ public class EntitySystem
                 continue;
             }
 
-            updateEntity(entityList[i]);
+            updateEntityVelocity(entityList[i], level.levelState);
+            switch(level.levelState)
+            {
+                case PLAY:
+                    updateEntity(entityList[i]);
+                    //updateEntityOnArrow(entityList[i]);
+                    break;
+                case RESET:
+                    resetEntity(entityList[i]);
+                    if(entityList[i].type == Entity.entityType.TILE_ARROW)
+                    {
+                        freeEntity(entityList[i]);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
+
+        if(level.levelState == LevelGenerator.LevelState.RESET)
+        {
+            level.setLevelState(LevelGenerator.LevelState.STANDBY);
+        }
+    }
+
+    public void freeAllEntity()
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            freeEntity(entityList[i]);
+        }
+    }
+
+    public void updateEntityVelocity(Entity entity, LevelGenerator.LevelState levelState)
+    {
+        int velocity = 0;
+        if(levelState == LevelGenerator.LevelState.PLAY)
+        {
+            switch(entity.type)
+            {
+                case CAT_TRACER:
+                    velocity = 4;
+                    break;
+                case MOUSE_NEUTRAL:
+                    velocity = 4;
+                    break;
+                default:
+                    velocity = 0;
+                    break;
+            }
+        }
+        entity.velocity = velocity;
+    }
+
+    public void resetEntity(Entity entity)
+    {
+        Vector2 originalPosition = entity.getOriginalPosition();
+        entity.position.x = originalPosition.x;
+        entity.position.y = originalPosition.y;
+
+        Entity.entityState originalState = entity.getOriginalState();
+        entity.state = originalState;
     }
 
     public Entity checkFrontOfEntity(Entity entity)
@@ -172,6 +237,31 @@ public class EntitySystem
         return null;
     }
 
+    /*public void updateEntityOnArrow(Entity entity)
+    {
+        Entity arrowEntity;
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if( entityList[i].type == Entity.entityType.TILE_ARROW ||
+                entityList[i].type == Entity.entityType.TILE_BLOCK ||
+                entityList[i].type == Entity.entityType.TILE_HOME)
+            {
+                continue;
+            }
+
+            arrowEntity = checkArrowTile(entityList[i].position);
+            if(arrowEntity != null)
+            {
+                entity.state = arrowEntity.state;
+            }
+        }
+    }*/
+
     public void updateCollidedEntity(Entity entity, Entity collided_entity, Entity.entityState state)
     {
         if(collided_entity != null)
@@ -179,10 +269,6 @@ public class EntitySystem
             switch(entity.type)
             {
                 case MOUSE_NEUTRAL:
-                    if(collided_entity.type == Entity.entityType.TILE_ARROW && checkArrowTile(entity.position))
-                    {
-                        entity.state = collided_entity.state;
-                    }
                     if(collided_entity.type == Entity.entityType.CAT_TRACER)
                     {
                         entity.state = Entity.entityState.FREE;
@@ -193,10 +279,6 @@ public class EntitySystem
                     }
                     break;
                 case CAT_TRACER:
-                    if(collided_entity.type == Entity.entityType.TILE_ARROW && checkArrowTile(entity.position))
-                    {
-                        entity.state = collided_entity.state;
-                    }
                     if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
                     {
                         collided_entity.state = Entity.entityState.FREE;
@@ -207,16 +289,75 @@ public class EntitySystem
                     }
                     break;
                 case TILE_ARROW:
-                    if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL && checkArrowTile(collided_entity.position))
+                    if(checkArrowTile(collided_entity.position))
                     {
+                        Entity.entityState temp = null;
+                        Entity tempEntity = null;
+                        switch(collided_entity.state)
+                        {
+                            case UP:
+                                temp = Entity.entityState.UP;
+                                break;
+                            case RIGHT:
+                                temp = Entity.entityState.RIGHT;
+                                break;
+                            case DOWN:
+                                temp = Entity.entityState.DOWN;
+                                break;
+                            case LEFT:
+                                temp = Entity.entityState.LEFT;
+                                break;
+                        }
+
                         collided_entity.state = entity.state;
-                    }
-                    if(collided_entity.type == Entity.entityType.CAT_TRACER && checkArrowTile(collided_entity.position))
-                    {
-                        collided_entity.state = entity.state;
+                        step(collided_entity);
+                        tempEntity = checkFrontOfEntity(collided_entity);
+                        if(tempEntity != null && temp != null && (tempEntity.type == Entity.entityType.TILE_BLOCK || boundaryCheckEntity(collided_entity)))
+                        {
+                            backstep(collided_entity);
+                            collided_entity.state = temp;
+                        }
                     }
                     break;
             }
+        }
+    }
+
+    public void step(Entity entity)
+    {
+        switch(entity.state)
+        {
+            case UP:
+                entity.position.y += entity.getVelocity();
+                break;
+            case RIGHT:
+                entity.position.x += entity.getVelocity();
+                break;
+            case DOWN:
+                entity.position.y -= entity.getVelocity();
+                break;
+            case LEFT:
+                entity.position.x -= entity.getVelocity();
+                break;
+        }
+    }
+
+    public void backstep(Entity entity)
+    {
+        switch(entity.state)
+        {
+            case UP:
+                entity.position.y -= entity.getVelocity();
+                break;
+            case RIGHT:
+                entity.position.x -= entity.getVelocity();
+                break;
+            case DOWN:
+                entity.position.y += entity.getVelocity();
+                break;
+            case LEFT:
+                entity.position.x += entity.getVelocity();
+                break;
         }
     }
 
@@ -326,8 +467,6 @@ public class EntitySystem
             return;
         }
 
-        Entity.entityState state_original = entity.state;
-        Entity.entityState state_opposite = getOppositeState(entity.state);
         Entity collided_entity;
         switch(entity.state)
         {
@@ -340,7 +479,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.UP);
                 }
 
-                else if(boundaryCheckEntity(entity))
+                if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.UP);
                 }
@@ -355,7 +494,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.RIGHT);
                 }
 
-                else if(boundaryCheckEntity(entity))
+                if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.RIGHT);
                 }
@@ -369,7 +508,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.DOWN);
                 }
 
-                else if(boundaryCheckEntity(entity))
+                if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.DOWN);
                 }
@@ -383,7 +522,7 @@ public class EntitySystem
                     updateCollidedEntity(entity, collided_entity, Entity.entityState.LEFT);
                 }
 
-                else if(boundaryCheckEntity(entity))
+                if(boundaryCheckEntity(entity))
                 {
                     updateCollidedEntityState(entity, collided_entity, Entity.entityState.LEFT);
                 }

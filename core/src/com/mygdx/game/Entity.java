@@ -36,13 +36,17 @@ public class Entity
     SpriteAnimation spriteAnimationLeft;
 
     Sprite sprite;
-    Entity.entityState state;
+    entityState state;
+    entityState originalState;
     Entity.entityType type;
     Vector2 position;
+    Vector2 originalPosition;
     Vector2 frameSize;
     int velocity;
     boolean inuse;
     float scale;
+
+    boolean arrowUpdateFlag;
 
     public Entity(Entity.entityType type, Sprite sprite, float scale)
     {
@@ -60,18 +64,9 @@ public class Entity
         this.sprite = sprite;
         this.scale = scale;
 
-        switch(type)
-        {
-            case CAT_TRACER:
-                velocity = 4;
-                break;
-            case MOUSE_NEUTRAL:
-                velocity = 4;
-                break;
-            default:
-                velocity = 0;
-                break;
-        }
+        this.velocity = 0;
+
+        arrowUpdateFlag = false;
     }
 
     public void generateSpriteTextureRegion()
@@ -99,6 +94,16 @@ public class Entity
         return this.scale;
     }
 
+    public entityState getState()
+    {
+        return this.state;
+    }
+
+    public void setVelocity(Entity entity)
+    {
+        this.velocity = velocity;
+    }
+
     public int getVelocity()
     {
         return this.velocity;
@@ -116,6 +121,20 @@ public class Entity
         Vector2 position = new Vector2();
         position.set(x, y);
         this.position = position;
+
+        Vector2 originalPosition = new Vector2();
+        originalPosition.set(x, y);
+        this.originalPosition = originalPosition;
+    }
+
+    public Vector2 getOriginalPosition()
+    {
+        return this.originalPosition;
+    }
+
+    public entityState getOriginalState()
+    {
+        return this.originalState;
     }
 
     public void setState(String passedState)
@@ -139,6 +158,31 @@ public class Entity
         else if(passedState.equals("FREE"))
         {
             this.state = entityState.FREE;
+        }
+    }
+
+    public void setState(entityState passedState)
+    {
+        this.state = passedState;
+    }
+
+    public void setOriginalState(String passedState)
+    {
+        if(passedState.equals("UP"))
+        {
+            this.originalState = entityState.UP;
+        }
+        else if(passedState.equals("RIGHT"))
+        {
+            this.originalState = entityState.RIGHT;
+        }
+        else if(passedState.equals("DOWN"))
+        {
+            this.originalState = entityState.DOWN;
+        }
+        else if(passedState.equals("LEFT"))
+        {
+            this.originalState = entityState.LEFT;
         }
     }
 
