@@ -184,13 +184,18 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         game.batch.end();
 
         stage.draw();
-        
+
         entitySystem.updateAllEntity();
     }
 
     public float getLevelWidth()
     {
         return TILE_SIZE * TPL * phoneScale;
+    }
+
+    public float getScale()
+    {
+        return phoneScale;
     }
 
     @Override
