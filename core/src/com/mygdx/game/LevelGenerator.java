@@ -56,9 +56,6 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     Entity entityTileArrow;
     MapObjects mapObjectsCatTracer;
 
-    private Texture stubTexture;
-    private Image stubImage;
-
     MapObjects test;
 
     EntitySystem entitySystem;
@@ -82,10 +79,9 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         phoneHeight = Gdx.graphics.getHeight();
         phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
 
-        stubTexture = new Texture("Assets_Image/stub_button4.png");
-        stubImage = new Image(stubTexture);
-        stubImage.setWidth(Gdx.graphics.getWidth() - (TILE_SIZE * TPL * phoneScale));
-        stubImage.setHeight(Gdx.graphics.getHeight());
+        LevelHudGenerator hud = new LevelHudGenerator(this);
+        stage = hud.getHud();
+
         this.create();
     }
 
@@ -158,34 +154,12 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 temp_entity.setState(object.getProperties().get("State", String.class));
                 temp_entity.generateSpriteTextureRegion();
                 entitySystem.newEntity(temp_entity);
-
-                //Entity entityCatTracer = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
-                //entityCatTracer.setPosition(rect.getX(), rect.getY());
-                //entityCatTracer.setFrameSize(rect.getWidth(), rect.getHeight());
-                //entityCatTracer.setState(object.getProperties().get("State", String.class));
-                //entitySystem.newEntity(entityCatTracer);
             }
         }
 
         textureTileArrow = new Texture("Assets_Image/Arrow.png");
         spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
         spriteTileArrow.setScale(phoneScale);
-
-        stubImage.addAction(
-                Actions.sequence(
-                        Actions.alpha(0),
-                        Actions.fadeIn(1f),
-                        Actions.delay(4)));
-        stubImage.addListener(new ClickListener()
-        {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-            {
-                Gdx.app.log("Yokaka", "Stub Test");
-                return true;
-            }
-        });
-        stubImage.setPosition((TILE_SIZE * TPL * phoneScale), 0);
-        stage.addActor(stubImage);
 
         deltaTime = 0f;
     }
@@ -211,6 +185,11 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         game.batch.end();
 
         entitySystem.updateAllEntity();
+    }
+
+    public float getLevelWidth()
+    {
+        return TILE_SIZE * TPL * phoneScale;
     }
 
     @Override
