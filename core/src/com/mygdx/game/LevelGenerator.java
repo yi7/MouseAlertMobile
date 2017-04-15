@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
@@ -19,6 +20,12 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,11 +34,16 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 {
     MiceAlert game;
     OrthographicCamera camera;
+    OrthographicCamera hudCamera;
+    Stage stage;
+    GestureDetector gestureDetector;
     TiledMap tilemap;
     TiledMapRenderer tilemapRenderer;
     TilemapSystem tilemapObjectRenderer;
     MapObjects mapObjectsTiles;
     MapObjects mapObjectsWalls;
+
+    TextButton button;
 
     Texture textureCatTracer;
     Texture textureMouseNeutral;
@@ -43,6 +55,9 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     Sprite spriteTileArrow;
     Entity entityTileArrow;
     MapObjects mapObjectsCatTracer;
+
+    private Texture stubTexture;
+    private Image stubImage;
 
     MapObjects test;
 
@@ -61,21 +76,34 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     {
         this.game = game;
         entitySystem = new EntitySystem();
+        stage = new Stage();
+
+        phoneWidth = Gdx.graphics.getWidth();
+        phoneHeight = Gdx.graphics.getHeight();
+        phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
+
+        stubTexture = new Texture("Assets_Image/stub_button4.png");
+        stubImage = new Image(stubTexture);
+        stubImage.setWidth(Gdx.graphics.getWidth() - (TILE_SIZE * TPL * phoneScale));
+        stubImage.setHeight(Gdx.graphics.getHeight());
         this.create();
     }
 
     public void create()
     {
-        phoneWidth = Gdx.graphics.getWidth();
-        phoneHeight = Gdx.graphics.getHeight();
-        phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
-
         camera = new OrthographicCamera(phoneWidth, phoneHeight);
         camera.setToOrtho(false, phoneWidth, phoneHeight);
         camera.update();
 
-        GestureDetector gestureDetector = new GestureDetector(this);
-        Gdx.input.setInputProcessor(gestureDetector);
+        hudCamera = new OrthographicCamera(phoneWidth - (TILE_SIZE * TPL * phoneScale), phoneHeight);
+        hudCamera.setToOrtho(false, phoneWidth - (TILE_SIZE * TPL * phoneScale), phoneHeight);
+        hudCamera.update();
+
+        gestureDetector = new GestureDetector(this);
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(gestureDetector);
+        Gdx.input.setInputProcessor(multiplexer);
 
         tilemap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_01.tmx");
         tilemapRenderer = new OrthogonalTiledMapRenderer(tilemap, phoneScale);
@@ -143,6 +171,22 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
         spriteTileArrow.setScale(phoneScale);
 
+        stubImage.addAction(
+                Actions.sequence(
+                        Actions.alpha(0),
+                        Actions.fadeIn(1f),
+                        Actions.delay(4)));
+        stubImage.addListener(new ClickListener()
+        {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+            {
+                Gdx.app.log("Yokaka", "Stub Test");
+                return true;
+            }
+        });
+        stubImage.setPosition((TILE_SIZE * TPL * phoneScale), 0);
+        stage.addActor(stubImage);
+
         deltaTime = 0f;
     }
 
@@ -160,14 +204,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         tilemapRenderer.render();
 
         game.batch.begin();
-
         game.batch.setProjectionMatrix(camera.combined);
-
         tilemapObjectRenderer.tilemapRenderObject(mapObjectsTiles, game.batch, deltaTime);
-        //tilemapObjectRenderer.tilemapRenderObject(mapObjectsWalls, game.batch, deltaTime);
-
         entitySystem.drawAllEntity(deltaTime, game.batch);
-
+        stage.draw();
         game.batch.end();
 
         entitySystem.updateAllEntity();
@@ -250,7 +290,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 entitySystem.tapTile(tile_coordinate);
             }
 
-            Gdx.app.log("Yokaka", "Touch");
+            //Gdx.app.log("Yokaka", TILE_SIZE * TPL * phoneScale + " : " + Gdx.graphics.getWidth());
         }
         return false;
     }
