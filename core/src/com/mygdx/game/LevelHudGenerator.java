@@ -2,10 +2,12 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class LevelHudGenerator
@@ -15,14 +17,24 @@ public class LevelHudGenerator
     private Texture stubTexture;
     private Image stubImage;
 
+    private TextButton button;
+    private TextButton.TextButtonStyle textButtonStyle;
+    private BitmapFont bitmapFont;
+
     public LevelHudGenerator(LevelGenerator level)
     {
         stage = new Stage();
         this.level = level;
-        stubTexture = new Texture("Assets_Image/stub_button4.png");
+
+        stubTexture = new Texture("Assets_Image/stubHud.png");
         stubImage = new Image(stubTexture);
         stubImage.setWidth(Gdx.graphics.getWidth() - level.getLevelWidth());
         stubImage.setHeight(Gdx.graphics.getHeight());
+
+        bitmapFont = new BitmapFont();
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = bitmapFont;
+        button = new TextButton("Test", textButtonStyle);
     }
 
     public Stage getHud()

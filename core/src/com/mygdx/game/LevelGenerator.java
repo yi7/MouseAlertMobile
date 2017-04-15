@@ -181,9 +181,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         game.batch.setProjectionMatrix(camera.combined);
         tilemapObjectRenderer.tilemapRenderObject(mapObjectsTiles, game.batch, deltaTime);
         entitySystem.drawAllEntity(deltaTime, game.batch);
-        stage.draw();
         game.batch.end();
 
+        stage.draw();
+        
         entitySystem.updateAllEntity();
     }
 
