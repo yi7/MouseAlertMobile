@@ -232,7 +232,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         int mapX;
         int mapY;
         int tile_position;
-
+        Entity entity;
         Vector2 tile_coordinate;
 
         if((x / phoneScale) <= (TILE_SIZE * TPL))
@@ -244,9 +244,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
             if(tile_position < 63)
             {
                 tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
-                if(!entitySystem.checkAllTile(tile_coordinate))
+                entity = entitySystem.checkAllTile(tile_coordinate);
+                if(entity == null)
                 {
-                    Gdx.app.log("Yokaka", "No Tile");
+                    //Gdx.app.log("Yokaka", "No Tile");
                     entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
                     entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
                     entityTileArrow.setFrameSize(64f, 64f);
@@ -254,7 +255,11 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 }
                 else
                 {
-                    Gdx.app.log("Yokaka", "Exist");
+                    if(entity.type == Entity.entityType.TILE_ARROW)
+                    {
+                        entityTileArrow = entity;
+                    }
+                    //Gdx.app.log("Yokaka", "Exist");
                 }
 
                 //entitySystem.newEntity(entityTileArrow);

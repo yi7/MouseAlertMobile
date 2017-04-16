@@ -184,7 +184,7 @@ public class EntitySystem
         }
     }
 
-    public boolean checkAllTile(Vector2 coordinate)
+    public Entity checkAllTile(Vector2 coordinate)
     {
         for(int i = 0; i < entityList.length; i++)
         {
@@ -196,10 +196,10 @@ public class EntitySystem
             if( entityList[i].position.x == coordinate.x &&
                 entityList[i].position.y == coordinate.y)
             {
-                return true;
+                return entityList[i];
             }
         }
-        return false;
+        return null;
     }
 
     public boolean checkArrowTile(Vector2 coordinate)
@@ -279,6 +279,10 @@ public class EntitySystem
                     }
                     break;
                 case CAT_TRACER:
+                    if(collided_entity.type == Entity.entityType.TILE_ARROW && checkArrowTile(entity.position))
+                    {
+                        stepOnArrow(collided_entity, entity);
+                    }
                     if(collided_entity.type == Entity.entityType.MOUSE_NEUTRAL)
                     {
                         collided_entity.state = Entity.entityState.FREE;
@@ -291,35 +295,56 @@ public class EntitySystem
                 case TILE_ARROW:
                     if(checkArrowTile(collided_entity.position))
                     {
-                        Entity.entityState temp = null;
-                        Entity tempEntity = null;
-                        switch(collided_entity.state)
-                        {
-                            case UP:
-                                temp = Entity.entityState.UP;
-                                break;
-                            case RIGHT:
-                                temp = Entity.entityState.RIGHT;
-                                break;
-                            case DOWN:
-                                temp = Entity.entityState.DOWN;
-                                break;
-                            case LEFT:
-                                temp = Entity.entityState.LEFT;
-                                break;
-                        }
-
-                        collided_entity.state = entity.state;
-                        step(collided_entity);
-                        tempEntity = checkFrontOfEntity(collided_entity);
-                        if(tempEntity != null && temp != null && (tempEntity.type == Entity.entityType.TILE_BLOCK || boundaryCheckEntity(collided_entity)))
-                        {
-                            backstep(collided_entity);
-                            collided_entity.state = temp;
-                        }
+                        stepOnArrow(entity, collided_entity);
                     }
                     break;
             }
+        }
+    }
+
+    public void stepOnArrow(Entity arrow, Entity animal)
+    {
+        Entity.entityState temp = null;
+        Entity tempEntity = null;
+        switch(animal.state)
+        {
+            case UP:
+                temp = Entity.entityState.UP;
+                break;
+            case RIGHT:
+                temp = Entity.entityState.RIGHT;
+                break;
+            case DOWN:
+                temp = Entity.entityState.DOWN;
+                break;
+            case LEFT:
+                temp = Entity.entityState.LEFT;
+                break;
+        }
+
+        /*switch(arrow.state)
+        {
+            case UP:
+                Gdx.app.log("Yokaka", "UPUP");
+                break;
+            case RIGHT:
+                Gdx.app.log("Yokaka", "RIRIR");
+                break;
+            case DOWN:
+                Gdx.app.log("Yokaka", "DWDW");
+                break;
+            case LEFT:
+                Gdx.app.log("Yokaka", "LELE");
+                break;
+        }*/
+
+        animal.state = arrow.state;
+        step(animal);
+        tempEntity = checkFrontOfEntity(animal);
+        if(tempEntity != null && temp != null && (tempEntity.type == Entity.entityType.TILE_BLOCK || boundaryCheckEntity(animal)))
+        {
+            backstep(animal);
+            animal.state = temp;
         }
     }
 
@@ -468,6 +493,7 @@ public class EntitySystem
         }
 
         Entity collided_entity;
+
         switch(entity.state)
         {
             case UP:
@@ -577,6 +603,12 @@ public class EntitySystem
 
             //ignore itself
             if(entityList[i] == entity)
+            {
+                continue;
+            }
+
+            //if same type, not gonna do anything anyways so skip
+            if(entityList[i].type == entity.type)
             {
                 continue;
             }
