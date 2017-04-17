@@ -8,7 +8,6 @@ public class EntitySystem
 {
     Entity[] entityList;
 
-
     public EntitySystem()
     {
         entityList = new Entity[1000];
@@ -221,6 +220,25 @@ public class EntitySystem
         return false;
     }
 
+    public boolean checkHomeTile(Vector2 coordinate)
+    {
+        for(int i = 0; i < entityList.length; i++)
+        {
+            if(!entityList[i].inuse)
+            {
+                continue;
+            }
+
+            if( entityList[i].position.x == coordinate.x &&
+                    entityList[i].position.y == coordinate.y &&
+                    entityList[i].type == Entity.entityType.TILE_HOME)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Entity.entityState getOppositeState(Entity.entityState state)
     {
         switch(state)
@@ -296,6 +314,12 @@ public class EntitySystem
                     if(checkArrowTile(collided_entity.position))
                     {
                         stepOnArrow(entity, collided_entity);
+                    }
+                    break;
+                case TILE_HOME:
+                    if(checkHomeTile(collided_entity.position))
+                    {
+                        collided_entity.state = Entity.entityState.FREE;
                     }
                     break;
             }
@@ -594,32 +618,35 @@ public class EntitySystem
 
     public Entity collisionCheckEntity(Entity entity)
     {
+        Entity temp;
+
         for(int i = 0; i < entityList.length; i++)
         {
-            if(!entityList[i].inuse)
+            temp = entityList[i];
+            if(!temp.inuse)
             {
                 continue;
             }
 
             //ignore itself
-            if(entityList[i] == entity)
+            if(temp == entity)
             {
                 continue;
             }
 
             //if same type, not gonna do anything anyways so skip
-            if(entityList[i].type == entity.type)
+            if(temp.type == entity.type)
             {
                 continue;
             }
 
             //check collision
-            if( (entity.position.x + entity.frameSize.x > entityList[i].position.x) &&
-                (entityList[i].position.x + entityList[i].frameSize.x > entity.position.x) &&
-                (entity.position.y + entity.frameSize.y > entityList[i].position.y) &&
-                (entityList[i].position.y + entityList[i].frameSize.y > entity.position.y) )
+            if( (entity.position.x + entity.frameSize.x > temp.position.x) &&
+                (temp.position.x + temp.frameSize.x > entity.position.x) &&
+                (entity.position.y + entity.frameSize.y > temp.position.y) &&
+                (temp.position.y + temp.frameSize.y > entity.position.y) )
             {
-                return entityList[i];
+                return temp;
             }
         }
         return null;

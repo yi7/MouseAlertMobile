@@ -49,10 +49,12 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     Texture textureMouseNeutral;
     Texture textureTileArrow;
     Texture textureTileBlock;
+    Texture textureTileHome;
     Sprite spriteCatTracer;
     Sprite spriteMouseNeutral;
     Sprite spriteTileBlock;
     Sprite spriteTileArrow;
+    Sprite spriteTileHome;
     Entity entityTileArrow;
     MapObjects mapObjectsCatTracer;
 
@@ -117,22 +119,34 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         //mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
 
         textureTileBlock = new Texture("Assets_Image/Block.png");
+        textureTileHome = new Texture("Assets_Image/Home.png");
         spriteTileBlock = new Sprite(textureTileBlock, 8, 4);
+        spriteTileHome = new Sprite(textureTileHome, 8, 4);
         spriteTileBlock.setScale(phoneScale);
+        spriteTileHome.setScale(phoneScale);
         mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
         for(MapObject object : mapObjectsTiles)
         {
             if(object instanceof  RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                Entity entityTileBlock = new Entity(Entity.entityType.TILE_BLOCK, spriteTileBlock, phoneScale);
-                entityTileBlock.setPosition(rect.getX(), rect.getY());
-                entityTileBlock.setFrameSize(rect.getWidth(), rect.getHeight());
-                entityTileBlock.setState("UP");
-                entityTileBlock.setOriginalState("UP");
-                entityTileBlock.generateSpriteTextureRegion();
+
+                Entity temp_entity = null;
+                if(object.getProperties().get("Type", String.class).equals("TILE_BLOCK"))
+                {
+                    temp_entity = new Entity(Entity.entityType.TILE_BLOCK, spriteTileBlock, phoneScale);
+                }
+                else if(object.getProperties().get("Type", String.class).equals("TILE_HOME"))
+                {
+                    temp_entity = new Entity(Entity.entityType.TILE_HOME, spriteTileHome, phoneScale);
+                }
+                temp_entity.setPosition(rect.getX(), rect.getY());
+                temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
+                temp_entity.setState(object.getProperties().get("State", String.class));
+                temp_entity.setOriginalState(object.getProperties().get("State", String.class));
+                temp_entity.generateSpriteTextureRegion();
                 //Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
-                entitySystem.newEntity(entityTileBlock);
+                entitySystem.newEntity(temp_entity);
             }
         }
 
