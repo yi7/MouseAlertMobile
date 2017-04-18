@@ -1,14 +1,12 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class Entity
 {
-    public enum entityState
+    public enum EntityState
     {
         UP,
         RIGHT,
@@ -17,7 +15,7 @@ public class Entity
         FREE
     }
 
-    public enum entityType
+    public enum EntityType
     {
         MOUSE_NEUTRAL,
         MOUSE_TRACER,
@@ -36,9 +34,9 @@ public class Entity
     SpriteAnimation spriteAnimationLeft;
 
     Sprite sprite;
-    entityState state;
-    entityState originalState;
-    Entity.entityType type;
+    EntityState state;
+    EntityState originalState;
+    Entity.EntityType type;
     Vector2 position;
     Vector2 originalPosition;
     Vector2 frameSize;
@@ -48,7 +46,7 @@ public class Entity
 
     boolean arrowUpdateFlag;
 
-    public Entity(Entity.entityType type, Sprite sprite, float scale)
+    public Entity(Entity.EntityType type, Sprite sprite, float scale)
     {
         if(type == null)
         {
@@ -94,7 +92,7 @@ public class Entity
         return this.scale;
     }
 
-    public entityState getState()
+    public EntityState getState()
     {
         return this.state;
     }
@@ -132,7 +130,7 @@ public class Entity
         return this.originalPosition;
     }
 
-    public entityState getOriginalState()
+    public EntityState getOriginalState()
     {
         return this.originalState;
     }
@@ -141,27 +139,27 @@ public class Entity
     {
         if(passedState.equals("UP"))
         {
-            this.state = entityState.UP;
+            this.state = EntityState.UP;
         }
         else if(passedState.equals("RIGHT"))
         {
-            this.state = entityState.RIGHT;
+            this.state = EntityState.RIGHT;
         }
         else if(passedState.equals("DOWN"))
         {
-            this.state = entityState.DOWN;
+            this.state = EntityState.DOWN;
         }
         else if(passedState.equals("LEFT"))
         {
-            this.state = entityState.LEFT;
+            this.state = EntityState.LEFT;
         }
         else if(passedState.equals("FREE"))
         {
-            this.state = entityState.FREE;
+            this.state = EntityState.FREE;
         }
     }
 
-    public void setState(entityState passedState)
+    public void setState(EntityState passedState)
     {
         this.state = passedState;
     }
@@ -170,19 +168,19 @@ public class Entity
     {
         if(passedState.equals("UP"))
         {
-            this.originalState = entityState.UP;
+            this.originalState = EntityState.UP;
         }
         else if(passedState.equals("RIGHT"))
         {
-            this.originalState = entityState.RIGHT;
+            this.originalState = EntityState.RIGHT;
         }
         else if(passedState.equals("DOWN"))
         {
-            this.originalState = entityState.DOWN;
+            this.originalState = EntityState.DOWN;
         }
         else if(passedState.equals("LEFT"))
         {
-            this.originalState = entityState.LEFT;
+            this.originalState = EntityState.LEFT;
         }
     }
 

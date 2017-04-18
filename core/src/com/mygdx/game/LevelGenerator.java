@@ -134,11 +134,11 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 Entity temp_entity = null;
                 if(object.getProperties().get("Type", String.class).equals("TILE_BLOCK"))
                 {
-                    temp_entity = new Entity(Entity.entityType.TILE_BLOCK, spriteTileBlock, phoneScale);
+                    temp_entity = new Entity(Entity.EntityType.TILE_BLOCK, spriteTileBlock, phoneScale);
                 }
                 else if(object.getProperties().get("Type", String.class).equals("TILE_HOME"))
                 {
-                    temp_entity = new Entity(Entity.entityType.TILE_HOME, spriteTileHome, phoneScale);
+                    temp_entity = new Entity(Entity.EntityType.TILE_HOME, spriteTileHome, phoneScale);
                 }
                 temp_entity.setPosition(rect.getX(), rect.getY());
                 temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
@@ -166,11 +166,11 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 Entity temp_entity = null;
                 if(object.getProperties().get("Type", String.class).equals("CAT_TRACER"))
                 {
-                    temp_entity = new Entity(Entity.entityType.CAT_TRACER, spriteCatTracer, phoneScale);
+                    temp_entity = new Entity(Entity.EntityType.CAT_TRACER, spriteCatTracer, phoneScale);
                 }
                 else if(object.getProperties().get("Type", String.class).equals("MOUSE_NEUTRAL"))
                 {
-                    temp_entity = new Entity(Entity.entityType.MOUSE_NEUTRAL, spriteMouseNeutral, phoneScale);
+                    temp_entity = new Entity(Entity.EntityType.MOUSE_NEUTRAL, spriteMouseNeutral, phoneScale);
                 }
 
                 temp_entity.setPosition(rect.getX(), rect.getY());
@@ -185,6 +185,8 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         textureTileArrow = new Texture("Assets_Image/Arrow.png");
         spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
         spriteTileArrow.setScale(phoneScale);
+
+        entitySystem.saveInitialState();
 
         deltaTime = 0f;
     }
@@ -262,14 +264,14 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 if(entity == null)
                 {
                     //Gdx.app.log("Yokaka", "No Tile");
-                    entityTileArrow = new Entity(Entity.entityType.TILE_ARROW, spriteTileArrow, phoneScale);
+                    entityTileArrow = new Entity(Entity.EntityType.TILE_ARROW, spriteTileArrow, phoneScale);
                     entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
                     entityTileArrow.setFrameSize(64f, 64f);
                     entityTileArrow.generateSpriteTextureRegion();
                 }
                 else
                 {
-                    if(entity.type == Entity.entityType.TILE_ARROW)
+                    if(entity.type == Entity.EntityType.TILE_ARROW)
                     {
                         entityTileArrow = entity;
                     }
