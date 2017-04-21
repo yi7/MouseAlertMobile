@@ -1,11 +1,34 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.logging.Level;
+
+/**
+ * Contains template of a Entity
+ */
 public class Entity
 {
+    /**
+     * Contains all the different types of an Entity
+     */
+    public enum EntityType
+    {
+        MOUSE_NEUTRAL,
+        MOUSE_RACER,
+        MOUSE_HOVER,
+        CAT_RACER,
+        WALL,
+        TILE_BLOCK,
+        TILE_HOME,
+        TILE_ARROW
+    }
+
+    /**
+     * Contains all the different state of an Entity
+     */
     public enum EntityState
     {
         UP,
@@ -15,194 +38,439 @@ public class Entity
         FREE
     }
 
-    public enum EntityType
+    public boolean inuse;               /**<Flag to determine whether an Entity is in use*/
+    public Vector2 position;            /**<Position of the Entity*/
+    public Vector2 frame;               /**<Frame of the Entity*/
+    public int velocity;                /**<Speed of the Entity*/
+    public EntityType type;             /**<Type of the Entity*/
+    public EntityState state;           /**<State of the Entity*/
+    public SpriteSystem sprite_system;  /**<Sprite System that contains Entity Animation*/
+
+    /**
+     * Constructor that creates an empty Entity
+     */
+    public Entity()
     {
-        MOUSE_NEUTRAL,
-        MOUSE_TRACER,
-        MOUSE_HOVER,
-        CAT_TRACER,
-        WALL,
-        TILE_BLOCK,
-        TILE_HOME,
-        TILE_ARROW
+        this.inuse = false;
+        this.position = null;
+        this.frame = null;
+        this.velocity = 0;
+        this.type = null;
+        this.state = null;
+        this.sprite_system = null;
     }
 
-    SpriteAnimation spriteAnimation;
-    SpriteAnimation spriteAnimationUp;
-    SpriteAnimation spriteAnimationRight;
-    SpriteAnimation spriteAnimationDown;
-    SpriteAnimation spriteAnimationLeft;
-
-    Sprite sprite;
-    EntityState state;
-    EntityState originalState;
-    Entity.EntityType type;
-    Vector2 position;
-    Vector2 originalPosition;
-    Vector2 frameSize;
-    int velocity;
-    boolean inuse;
-    float scale;
-
-    boolean arrowUpdateFlag;
-
-    public Entity(Entity.EntityType type, Sprite sprite, float scale)
+    /**
+     * Constructor for saving Entity initial state
+     * @param position position of the Entity
+     * @param type type of the Entity
+     * @param state state of the Entity
+     */
+    public Entity(Vector2 position, Entity.EntityType type, Entity.EntityState state)
     {
-        if(type == null)
+        this.position = position;
+        this.type = type;
+        this.state = state;
+    }
+
+    /**
+     * Constructor that initializes a new Entity
+     * @param position  position of the Entity
+     * @param type type of the Entity
+     * @param state state of the Entity
+     * @param sprite_system Sprite System
+     */
+    public Entity(Vector2 position, EntityType type, EntityState state, SpriteSystem sprite_system)
+    {
+        this.inuse = true;
+        this.position = position;
+        this.frame = new Vector2(64, 64);
+        this.velocity = 0;
+        this.type = type;
+        this.state = state;
+        this.sprite_system = sprite_system;
+    }
+
+    /**
+     * Sets the State of the Entity
+     * @param state state of the Entity
+     */
+    public void setState(Entity.EntityState state)
+    {
+        this.state = state;
+    }
+
+    /**
+     * Gets the Key for what Animation to draw
+     * Key  Value
+     * 0    TILE_BLOCK
+     * 1    TILE_HOME
+     * 2    TILE_ARROW_UP
+     * 3    TILE_ARROW_RIGHT
+     * 4    TILE_ARROW_DOWN
+     * 5    TILE_ARROW_LEFT
+     * 6    TILE_DOT
+     * 7    TILE_HOLE
+     * 8    CAT_RACER_UP
+     * 9    CAT_RACER_RIGHT
+     * 10   CAT_RACER_DOWN
+     * 11   CAT_RACER_LEFT
+     * 12   MOUSE_NEUTRAL_UP
+     * 13   MOUSE_NEUTRAL_RIGHT
+     * 14   MOUSE_NEUTRAL_DOWN
+     * 15   MOUSE_NEUTRAL_RIGHT
+     * @return Index of Animation depending on Entity Type and State
+     */
+    public int getKey()
+    {
+        switch(type)
         {
-            this.inuse = false;
-            return;
+            case TILE_BLOCK:
+                return 0;
+            case TILE_HOME:
+                return 1;
+            case TILE_ARROW:
+                switch(state)
+                {
+                    case UP:
+                        return 2;
+                    case RIGHT:
+                        return 3;
+                    case DOWN:
+                        return 4;
+                    case LEFT:
+                        return 5;
+                }
+                break;
+            case CAT_RACER:
+                switch(state)
+                {
+                    case UP:
+                        return 8;
+                    case RIGHT:
+                        return 9;
+                    case DOWN:
+                        return 10;
+                    case LEFT:
+                        return 11;
+                }
+            case MOUSE_NEUTRAL:
+                switch(state)
+                {
+                    case UP:
+                        return 12;
+                    case RIGHT:
+                        return 13;
+                    case DOWN:
+                        return 14;
+                    case LEFT:
+                        return 15;
+                }
+            default:
+                break;
+        }
+        return 0;
+    }
+
+    /**
+     * Draws the Entity
+     * @param key Determines what Animation to draw
+     * @param batch Sprite Batch
+     * @param x X position on the Level
+     * @param y Y position on the Level
+     */
+    public void draw(int key, Batch batch, float delta_time, float x, float y)
+    {
+        sprite_system.draw(key, batch, delta_time, x, y);
+    }
+
+    /**
+     * Frees the Entity
+     */
+    public void free()
+    {
+        this.inuse = false;
+        this.position = null;
+        this.frame = null;
+        this.velocity = 0;
+        this.type = null;
+        this.state = null;
+    }
+
+    /**
+     * Acts based on what Entity is colliding with
+     * @param collided_entity Entity it collided with
+     * @param entity_system Entity System
+     */
+    public void think(Entity collided_entity, EntitySystem entity_system)
+    {
+        return;
+    }
+
+    /**
+     * Updates based on what Entity collided with
+     * @param entity_system Entity System
+     */
+    public void update(EntitySystem entity_system)
+    {
+        this.step();
+        Entity temp_entity = entity_system.collisionCheckAllEntities(this);
+        if(temp_entity != null)
+        {
+            this.think(temp_entity, entity_system);
+        }
+
+        if(checkOutOfBounds() || (temp_entity != null && temp_entity.type == EntityType.TILE_BLOCK)) {
+            switch(state) {
+                case UP:
+                    this.backstep();
+                    this.state = EntityState.RIGHT;
+                    this.step();
+                    temp_entity = entity_system.collisionCheckAllEntities(this);
+                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                        this.backstep();
+                        this.state = EntityState.LEFT;
+                        this.step();
+                        temp_entity = entity_system.collisionCheckAllEntities(this);
+                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                            this.backstep();
+                            this.state = Entity.EntityState.DOWN;
+                        }
+                        else
+                        {
+                            this.backstep();
+                        }
+                    }
+                    else
+                    {
+                        this.backstep();
+                    }
+                    break;
+                case RIGHT:
+                    this.backstep();
+                    this.state = EntityState.DOWN;
+                    this.step();
+                    temp_entity = entity_system.collisionCheckAllEntities(this);
+                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                        this.backstep();
+                        this.state = Entity.EntityState.UP;
+                        this.step();
+                        temp_entity = entity_system.collisionCheckAllEntities(this);
+                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                            this.backstep();
+                            this.state = Entity.EntityState.LEFT;
+                        }
+                        else
+                        {
+                            this.backstep();
+                        }
+                    }
+                    else
+                    {
+                        this.backstep();
+                    }
+                    break;
+                case DOWN:
+                    this.backstep();
+                    this.state = EntityState.LEFT;
+                    this.step();
+                    temp_entity = entity_system.collisionCheckAllEntities(this);
+                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                        this.backstep();
+                        this.state = Entity.EntityState.RIGHT;
+                        this.step();
+                        temp_entity = entity_system.collisionCheckAllEntities(this);
+                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                            this.backstep();
+                            this.state = Entity.EntityState.UP;
+                        }
+                        else
+                        {
+                            this.backstep();
+                        }
+                    }
+                    else
+                    {
+                        this.backstep();
+                    }
+                    break;
+                case LEFT:
+                    this.backstep();
+                    this.state = EntityState.UP;
+                    this.step();
+                    temp_entity = entity_system.collisionCheckAllEntities(this);
+                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                        this.backstep();
+                        this.state = Entity.EntityState.DOWN;
+                        this.step();
+                        temp_entity = entity_system.collisionCheckAllEntities(this);
+                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK)) {
+                            this.backstep();
+                            this.state = Entity.EntityState.RIGHT;
+                        }
+                        else
+                        {
+                            this.backstep();
+                        }
+                    }
+                    else
+                    {
+                        this.backstep();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Moves Entity forward based on state
+     */
+    public void step()
+    {
+        switch(state)
+        {
+            case UP:
+                position.y += velocity;
+                break;
+            case RIGHT:
+                position.x += velocity;
+                break;
+            case DOWN:
+                position.y -= velocity;
+                break;
+            case LEFT:
+                position.x -= velocity;
+        }
+    }
+
+    /**
+     * Moves Entity backward based on state
+     */
+    public void backstep()
+    {
+        switch(state)
+        {
+            case UP:
+                position.y -= velocity;
+                break;
+            case RIGHT:
+                position.x -= velocity;
+                break;
+            case DOWN:
+                position.y += velocity;
+                break;
+            case LEFT:
+                position.x += velocity;
+        }
+    }
+
+    /**
+     * Checks whether Entity is out of bounds or not
+     * @return true if its out of bounds, otherwise false
+     */
+    public boolean checkOutOfBounds()
+    {
+        LevelGenerator level = new LevelGenerator();
+        float x = position.x * level.phone_scale;
+        float y = position.y * level.phone_scale;
+        float frameX = frame.x * level.phone_scale;
+        float frameY = frame.y * level.phone_scale;
+
+        if(y + frameY > level.phone_height)
+        {
+            return true;
+        }
+        else if(x + frameX > level.level_width)
+        {
+            return true;
+        }
+        else if(y < 0)
+        {
+            return true;
+        }
+        else if(x < 0)
+        {
+            return true;
         }
         else
         {
-            this.inuse = true;
-        }
-
-        this.type = type;
-        this.sprite = sprite;
-        this.scale = scale;
-
-        this.velocity = 0;
-
-        arrowUpdateFlag = false;
-    }
-
-    public void generateSpriteTextureRegion()
-    {
-        if(sprite != null)
-        {
-            spriteAnimationUp = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionUp(), sprite.getScale());
-            spriteAnimationRight = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionRight(), sprite.getScale());
-            spriteAnimationDown = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionDown(), sprite.getScale());
-            spriteAnimationLeft = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegionLeft(), sprite.getScale());
-
-            //spriteAnimation = new SpriteAnimation(1f/4f, sprite.generateSpriteTextureRegion());
-            //spriteAnimation.setScale(sprite.getScale());
-            spriteAnimationUp.setPlayMode(Animation.PlayMode.LOOP);
-            spriteAnimationRight.setPlayMode(Animation.PlayMode.LOOP);
-            spriteAnimationDown.setPlayMode(Animation.PlayMode.LOOP);
-            spriteAnimationLeft.setPlayMode(Animation.PlayMode.LOOP);
-        }
-
-
-    }
-
-    public float getScale()
-    {
-        return this.scale;
-    }
-
-    public EntityState getState()
-    {
-        return this.state;
-    }
-
-    public void setVelocity(Entity entity)
-    {
-        this.velocity = velocity;
-    }
-
-    public int getVelocity()
-    {
-        return this.velocity;
-    }
-
-    public void setFrameSize(float x, float y)
-    {
-        Vector2 frameSize = new Vector2();
-        frameSize.set(x, y);
-        this.frameSize = frameSize;
-    }
-
-    public void setPosition(float x, float y)
-    {
-        Vector2 position = new Vector2();
-        position.set(x, y);
-        this.position = position;
-
-        Vector2 originalPosition = new Vector2();
-        originalPosition.set(x, y);
-        this.originalPosition = originalPosition;
-    }
-
-    public Vector2 getOriginalPosition()
-    {
-        return this.originalPosition;
-    }
-
-    public EntityState getOriginalState()
-    {
-        return this.originalState;
-    }
-
-    public void setState(String passedState)
-    {
-        if(passedState.equals("UP"))
-        {
-            this.state = EntityState.UP;
-        }
-        else if(passedState.equals("RIGHT"))
-        {
-            this.state = EntityState.RIGHT;
-        }
-        else if(passedState.equals("DOWN"))
-        {
-            this.state = EntityState.DOWN;
-        }
-        else if(passedState.equals("LEFT"))
-        {
-            this.state = EntityState.LEFT;
-        }
-        else if(passedState.equals("FREE"))
-        {
-            this.state = EntityState.FREE;
+            return false;
         }
     }
 
-    public void setState(EntityState passedState)
+    /**
+     * Converts a String to Entity Type
+     * @param string String to convert to Entity Type
+     * @return Entity Type
+     */
+    public EntityType str2entityType(String string)
     {
-        this.state = passedState;
+        if(string.equals("MOUSE_NEUTRAL"))
+        {
+            return EntityType.MOUSE_NEUTRAL;
+        }
+        else if(string.equals("MOUSE_HOVER"))
+        {
+            return EntityType.MOUSE_HOVER;
+        }
+        else if(string.equals("CAT_RACER"))
+        {
+            return EntityType.CAT_RACER;
+        }
+        else if(string.equals("WALL"))
+        {
+            return EntityType.WALL;
+        }
+        else if(string.equals("TILE_BLOCK"))
+        {
+            return EntityType.TILE_BLOCK;
+        }
+        else if(string.equals("TILE_HOME"))
+        {
+            return EntityType.TILE_HOME;
+        }
+        else if(string.equals("TILE_ARROW"))
+        {
+            return EntityType.TILE_ARROW;
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public void setOriginalState(String passedState)
+    /**
+     * Converts a String to Entity State
+     * @param string String to convert to Entity State
+     * @return Entity State
+     */
+    public EntityState str2entityState(String string)
     {
-        if(passedState.equals("UP"))
+        if(string.equals("UP"))
         {
-            this.originalState = EntityState.UP;
+            return EntityState.UP;
         }
-        else if(passedState.equals("RIGHT"))
+        else if(string.equals("RIGHT"))
         {
-            this.originalState = EntityState.RIGHT;
+            return EntityState.RIGHT;
         }
-        else if(passedState.equals("DOWN"))
+        else if(string.equals("DOWN"))
         {
-            this.originalState = EntityState.DOWN;
+            return EntityState.DOWN;
         }
-        else if(passedState.equals("LEFT"))
+        else if(string.equals("LEFT"))
         {
-            this.originalState = EntityState.LEFT;
+            return EntityState.LEFT;
         }
-    }
-
-    public void drawEntity(float deltaTime, Batch batch, float x, float y)
-    {
-        if(sprite != null)
+        else if(string.equals("FREE"))
         {
-            switch(state)
-            {
-                case UP:
-                    spriteAnimationUp.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
-                    break;
-                case RIGHT:
-                    spriteAnimationRight.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
-                    break;
-                case DOWN:
-                    spriteAnimationDown.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
-                    break;
-                case LEFT:
-                    spriteAnimationLeft.draw(deltaTime, batch, x * sprite.getScale(), y * sprite.getScale());
-                    break;
-            }
+            return EntityState.FREE;
+        }
+        else
+        {
+            return null;
         }
     }
 }

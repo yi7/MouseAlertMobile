@@ -2,702 +2,248 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
-import com.google.gwt.json.client.JSONArray;
 
 import java.util.ArrayList;
 
-import static java.awt.SystemColor.text;
-
+/**
+ * The core data structure for Entity System
+ */
 public class EntitySystem
 {
-    Entity[] entityList;
+    Entity[] entity_list; /**<Data Structure which contains all entities*/
+    Preferences prefs;
 
+    /**
+     * Constructor that initializes an empty Entity Data Structure
+     */
     public EntitySystem()
     {
-        entityList = new Entity[1000];
+        entity_list = new Entity[1000];
 
-        for(int i = 0; i < entityList.length; i++)
+        for(int i = 0; i < entity_list.length; i++)
         {
-            entityList[i] = new Entity(null, null, 0);
+            entity_list[i] = new Entity();
         }
     }
 
+    /**
+     * Inserts a new Entity into the Data Structure
+     * @param entity The Entity to insert
+     */
     public void newEntity(Entity entity)
     {
-        for(int i = 0; i < entityList.length; i++)
+        for(int i = 0; i < entity_list.length; i++)
         {
-            if(entityList[i].inuse)
+            if(entity_list[i].inuse)
             {
                 continue;
             }
 
-            entityList[i] = entity;
+            entity_list[i] = entity;
             break;
         }
     }
 
-    public void freeEntity(Entity entity)
+    /**
+     * Checks whether an Entity is colliding with another Entity
+     * @param self Entity to check
+     * @param other Entity to check
+     * @return
+     */
+    public boolean collisionCheckEntity(Entity self, Entity other)
     {
-        entity.inuse = false;
-        entity.sprite = null;
+        if( (self.position.x + self.frame.x > other.position.x) &&
+                (other.position.x + other.frame.x > self.position.x) &&
+                (self.position.y + self.frame.y > other.position.y) &&
+                (other.position.y + other.frame.y > self.position.y) )
+        {
+            return true;
+        }
+        return false;
     }
 
-    public void drawAllEntity(float deltaTime, Batch batch)
+    /**
+     * Draws all Entities in the Entity System. Draws Arrows first, then everything else
+     * @param batch Sprite Batch
+     */
+    public void drawAllEntity(Batch batch, float delta_time)
     {
-        for(int i = 0; i < entityList.length; i++) //Draws Arrows First
+        for(int i = 0; i < entity_list.length; i++)
         {
-            if(!entityList[i].inuse)
+            if(!entity_list[i].inuse)
             {
                 continue;
             }
 
-            if(entityList[i].type != Entity.EntityType.TILE_ARROW)
+            if(entity_list[i].type != Entity.EntityType.TILE_ARROW)
             {
                 continue;
             }
 
-            entityList[i].drawEntity(deltaTime, batch, entityList[i].position.x, entityList[i].position.y);
+            entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
         }
 
-        for(int i = 0; i < entityList.length; i++) //Draws
+        for(int i = 0; i < entity_list.length; i++)
         {
-            if(!entityList[i].inuse)
+            if(!entity_list[i].inuse)
             {
                 continue;
             }
 
-            if(entityList[i].type == Entity.EntityType.TILE_ARROW)
+            if(entity_list[i].type == Entity.EntityType.TILE_ARROW)
             {
                 continue;
             }
 
-            entityList[i].drawEntity(deltaTime, batch, entityList[i].position.x, entityList[i].position.y);
+            entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
         }
     }
 
-    public void updateAllEntity(LevelGenerator level)
+    /**
+     * Saves all Entities into a Preference
+     */
+    public void saveAllEntities()
     {
         Entity entity;
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            updateEntityVelocity(entityList[i], level.levelState);
-            switch(level.levelState)
-            {
-                case PLAY:
-                    updateEntity(entityList[i]);
-                    //updateEntityOnArrow(entityList[i]);
-                    break;
-                case RESET:
-                    resetEntity(entityList[i]);
-                    if(entityList[i].type == Entity.EntityType.TILE_ARROW)
-                    {
-                        freeEntity(entityList[i]);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if(level.levelState == LevelGenerator.LevelState.RESET)
-        {
-            level.setLevelState(LevelGenerator.LevelState.STANDBY);
-        }
-    }
-
-    public void freeAllEntity()
-    {
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            freeEntity(entityList[i]);
-        }
-    }
-
-    public void updateEntityVelocity(Entity entity, LevelGenerator.LevelState levelState)
-    {
-        int velocity = 0;
-        if(levelState == LevelGenerator.LevelState.PLAY)
-        {
-            switch(entity.type)
-            {
-                case CAT_TRACER:
-                    velocity = 4;
-                    break;
-                case MOUSE_NEUTRAL:
-                    velocity = 4;
-                    break;
-                default:
-                    velocity = 0;
-                    break;
-            }
-        }
-        entity.velocity = velocity;
-    }
-
-    public void saveInitialState()
-    {
-        SaveEntity saveEntity;
         Json json = new Json();
-        ArrayList<SaveEntity> saveList = new ArrayList<SaveEntity>();
-        Preferences prefs = Gdx.app.getPreferences("SaveInitialLevelState");
+        ArrayList<Entity> temp_entity_list = new ArrayList<Entity>();
+        prefs = Gdx.app.getPreferences("SaveInitialLevelState");
 
-        for(int i = 0; i < entityList.length; i++)
+        for(int i = 0; i < entity_list.length; i++)
         {
-            if(!entityList[i].inuse)
+            if(!entity_list[i].inuse)
             {
                 continue;
             }
 
-            saveEntity = new SaveEntity(entityList[i].position, entityList[i].type, entityList[i].state);
-            saveList.add(saveEntity);
+            entity = new Entity(entity_list[i].position, entity_list[i].type, entity_list[i].state);
+            temp_entity_list.add(entity);
         }
 
-        String jsonString = json.prettyPrint(saveList);
-        prefs.putString("SaveFile", jsonString);
+        String jsonString = json.prettyPrint(temp_entity_list);
+        prefs.putString("SaveLevel", jsonString);
         prefs.flush();
-        //SaveEntity saveEntity = new SaveEntity()
 
-        Gdx.app.log("Yokaka", prefs.getString("SaveFile"));
-        Gdx.app.log("Yokaka", "TEST");
-
-        Json jsontest = new Json();
-        ArrayList<SaveEntity> save = json.fromJson(ArrayList.class, prefs.getString("SaveFile"));
-
-        for(SaveEntity s : save)
-        {
-            Gdx.app.log("Yokaka", s.position.x + ", " + s.position.y);
-        }
-        /*
-        //adding to the preferences:
-        hsMap.put("freeMode", json.toJson( hsFreeMode ) );
-        //and then:
-        Gdx.app.log("data print", "the free mode value is " + ( (String[])json.fromJson(ArrayList.class, String[].class, (String)data.get("freeMode") ).get(0) )[0] );
-        */
+        //Gdx.app.log("Yokaka", prefs.getString("SaveLevel"));
     }
 
-    public void resetEntity(Entity entity)
+    /**
+     * Checks whether the passed Entity intersects with any Entity on the Entity System
+     * @param entity
+     * @return
+     */
+    public Entity collisionCheckAllEntities(Entity entity)
     {
-        Vector2 originalPosition = entity.getOriginalPosition();
-        entity.position.x = originalPosition.x;
-        entity.position.y = originalPosition.y;
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
+            {
+                continue;
+            }
 
-        Entity.EntityState originalState = entity.getOriginalState();
-        entity.state = originalState;
+            if(entity == entity_list[i])
+            {
+                continue;
+            }
+
+            if(entity.type == entity_list[i].type)
+            {
+                continue;
+            }
+
+            if(collisionCheckEntity(entity, entity_list[i]))
+            {
+                return entity_list[i];
+            }
+        }
+        return null;
     }
 
-    public Entity checkFrontOfEntity(Entity entity)
+    /**
+     * Updates all Entities on the Entity System
+     */
+    public void updateAllEntities()
+    {
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
+            {
+                continue;
+            }
+
+            entity_list[i].update(this);
+        }
+    }
+
+    /**
+     * Frees all Entity and initializes them again from the save file
+     * @param level
+     * @param sprite_system
+     */
+    public void resetAllEntities(LevelGenerator level, SpriteSystem sprite_system)
     {
         Entity temp_entity;
+        Json json = new Json();
+        ArrayList<Entity> save = json.fromJson(ArrayList.class, prefs.getString("SaveLevel"));
+        this.freeAllEntities();
 
-        temp_entity = collisionCheckEntity(entity);
-        if(temp_entity != null)
-        {
-            return temp_entity;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public void tapTile(Vector2 tapped_coordinate)
-    {
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            if( entityList[i].position.x == tapped_coordinate.x &&
-                entityList[i].position.y == tapped_coordinate.y &&
-                entityList[i].type == Entity.EntityType.TILE_ARROW)
-            {
-                entityList[i].setState("FREE");
-            }
-        }
-    }
-
-    public Entity checkAllTile(Vector2 coordinate)
-    {
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            if( entityList[i].position.x == coordinate.x &&
-                entityList[i].position.y == coordinate.y)
-            {
-                return entityList[i];
-            }
-        }
-        return null;
-    }
-
-    public boolean checkArrowTile(Vector2 coordinate)
-    {
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            if( entityList[i].position.x == coordinate.x &&
-                entityList[i].position.y == coordinate.y &&
-                entityList[i].type == Entity.EntityType.TILE_ARROW)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean checkHomeTile(Vector2 coordinate)
-    {
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            if( entityList[i].position.x == coordinate.x &&
-                    entityList[i].position.y == coordinate.y &&
-                    entityList[i].type == Entity.EntityType.TILE_HOME)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Entity.EntityState getOppositeState(Entity.EntityState state)
-    {
-        switch(state)
-        {
-            case UP:
-                return Entity.EntityState.DOWN;
-            case RIGHT:
-                return Entity.EntityState.LEFT;
-            case DOWN:
-                return Entity.EntityState.UP;
-            case LEFT:
-                return Entity.EntityState.RIGHT;
-        }
-        return null;
-    }
-
-    /*public void updateEntityOnArrow(Entity entity)
-    {
-        Entity arrowEntity;
-        for(int i = 0; i < entityList.length; i++)
-        {
-            if(!entityList[i].inuse)
-            {
-                continue;
-            }
-
-            if( entityList[i].type == Entity.entityType.TILE_ARROW ||
-                entityList[i].type == Entity.entityType.TILE_BLOCK ||
-                entityList[i].type == Entity.entityType.TILE_HOME)
-            {
-                continue;
-            }
-
-            arrowEntity = checkArrowTile(entityList[i].position);
-            if(arrowEntity != null)
-            {
-                entity.state = arrowEntity.state;
-            }
-        }
-    }*/
-
-    public void updateCollidedEntity(Entity entity, Entity collided_entity, Entity.EntityState state)
-    {
-        if(collided_entity != null)
+        for(Entity entity : save)
         {
             switch(entity.type)
             {
-                case MOUSE_NEUTRAL:
-                    if(collided_entity.type == Entity.EntityType.CAT_TRACER)
-                    {
-                        entity.state = Entity.EntityState.FREE;
-                    }
-                    if(collided_entity.type == Entity.EntityType.TILE_BLOCK)
-                    {
-                        updateCollidedEntityState(entity, collided_entity, state);
-                    }
-                    break;
-                case CAT_TRACER:
-                    if(collided_entity.type == Entity.EntityType.TILE_ARROW && checkArrowTile(entity.position))
-                    {
-                        stepOnArrow(collided_entity, entity);
-                    }
-                    if(collided_entity.type == Entity.EntityType.MOUSE_NEUTRAL)
-                    {
-                        collided_entity.state = Entity.EntityState.FREE;
-                    }
-                    if(collided_entity.type == Entity.EntityType.TILE_BLOCK)
-                    {
-                        updateCollidedEntityState(entity, collided_entity, state);
-                    }
+                case CAT_RACER:
+                    temp_entity = new EntityCatRacer(entity.position, entity.type, entity.state, sprite_system);
                     break;
                 case TILE_ARROW:
-                    if(checkArrowTile(collided_entity.position))
-                    {
-                        stepOnArrow(entity, collided_entity);
-                    }
+                    temp_entity = new EntityTileArrow(entity.position, entity.type, entity.state, sprite_system);
                     break;
-                case TILE_HOME:
-                    if(checkHomeTile(collided_entity.position))
-                    {
-                        collided_entity.state = Entity.EntityState.FREE;
-                    }
+                default:
+                    temp_entity = new Entity(entity.position, entity.type, entity.state, sprite_system);
                     break;
             }
+            this.newEntity(temp_entity);
         }
+        level.setLevelState(LevelGenerator.LevelState.STANDBY);
     }
 
-    public void stepOnArrow(Entity arrow, Entity animal)
+    /**
+     * Frees all Entities
+     */
+    public void freeAllEntities()
     {
-        Entity.EntityState temp = null;
-        Entity tempEntity = null;
-        switch(animal.state)
+        for(int i = 0; i < entity_list.length; i++)
         {
-            case UP:
-                temp = Entity.EntityState.UP;
-                break;
-            case RIGHT:
-                temp = Entity.EntityState.RIGHT;
-                break;
-            case DOWN:
-                temp = Entity.EntityState.DOWN;
-                break;
-            case LEFT:
-                temp = Entity.EntityState.LEFT;
-                break;
-        }
-
-        /*switch(arrow.state)
-        {
-            case UP:
-                Gdx.app.log("Yokaka", "UPUP");
-                break;
-            case RIGHT:
-                Gdx.app.log("Yokaka", "RIRIR");
-                break;
-            case DOWN:
-                Gdx.app.log("Yokaka", "DWDW");
-                break;
-            case LEFT:
-                Gdx.app.log("Yokaka", "LELE");
-                break;
-        }*/
-
-        animal.state = arrow.state;
-        step(animal);
-        tempEntity = checkFrontOfEntity(animal);
-        if(tempEntity != null && temp != null && (tempEntity.type == Entity.EntityType.TILE_BLOCK || boundaryCheckEntity(animal)))
-        {
-            backstep(animal);
-            animal.state = temp;
-        }
-    }
-
-    public void step(Entity entity)
-    {
-        switch(entity.state)
-        {
-            case UP:
-                entity.position.y += entity.getVelocity();
-                break;
-            case RIGHT:
-                entity.position.x += entity.getVelocity();
-                break;
-            case DOWN:
-                entity.position.y -= entity.getVelocity();
-                break;
-            case LEFT:
-                entity.position.x -= entity.getVelocity();
-                break;
-        }
-    }
-
-    public void backstep(Entity entity)
-    {
-        switch(entity.state)
-        {
-            case UP:
-                entity.position.y -= entity.getVelocity();
-                break;
-            case RIGHT:
-                entity.position.x -= entity.getVelocity();
-                break;
-            case DOWN:
-                entity.position.y += entity.getVelocity();
-                break;
-            case LEFT:
-                entity.position.x += entity.getVelocity();
-                break;
-        }
-    }
-
-    public void updateCollidedEntityState(Entity entity, Entity collided_entity, Entity.EntityState state)
-    {
-        Entity temp_entity;
-
-        switch(state)
-        {
-            case UP:
-                entity.position.y -= entity.getVelocity();
-
-                entity.state = Entity.EntityState.RIGHT;
-                entity.position.x += entity.getVelocity();
-                temp_entity = checkFrontOfEntity(entity);
-                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                {
-                    entity.position.x -= entity.getVelocity();
-
-                    entity.state = Entity.EntityState.LEFT;
-                    entity.position.x -= entity.getVelocity();
-                    temp_entity = checkFrontOfEntity(entity);
-                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                    {
-                        entity.position.x += entity.getVelocity();
-                        entity.state = Entity.EntityState.DOWN;
-                    }
-                    entity.position.x += entity.getVelocity();
-                }
-                entity.position.x -= entity.getVelocity();
-                break;
-            case RIGHT:
-                entity.position.x -= entity.getVelocity();
-
-                entity.state = Entity.EntityState.DOWN;
-                entity.position.y -= entity.getVelocity();
-                temp_entity = checkFrontOfEntity(entity);
-                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                {
-                    entity.position.y += entity.getVelocity();
-
-                    entity.state = Entity.EntityState.UP;
-                    entity.position.y += entity.getVelocity();
-                    temp_entity = checkFrontOfEntity(entity);
-                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                    {
-                        entity.position.y -= entity.getVelocity();
-                        entity.state = Entity.EntityState.LEFT;
-                    }
-                    entity.position.y -= entity.getVelocity();
-                }
-                entity.position.y += entity.getVelocity();
-                break;
-            case DOWN:
-                entity.position.y += entity.getVelocity();
-
-                entity.state = Entity.EntityState.LEFT;
-                entity.position.x -= entity.getVelocity();
-                temp_entity = checkFrontOfEntity(entity);
-                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                {
-                    entity.position.x += entity.getVelocity();
-
-                    entity.state = Entity.EntityState.RIGHT;
-                    entity.position.x += entity.getVelocity();
-                    temp_entity = checkFrontOfEntity(entity);
-                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                    {
-                        entity.position.x -= entity.getVelocity();
-                        entity.state = Entity.EntityState.UP;
-                    }
-                    entity.position.x -= entity.getVelocity();
-                }
-                entity.position.x += entity.getVelocity();
-                break;
-            case LEFT:
-                entity.position.x += entity.getVelocity();
-
-                entity.state = Entity.EntityState.UP;
-                entity.position.y += entity.getVelocity();
-                temp_entity = checkFrontOfEntity(entity);
-                if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                {
-                    entity.position.y -= entity.getVelocity();
-
-                    entity.state = Entity.EntityState.DOWN;
-                    entity.position.y -= entity.getVelocity();
-                    temp_entity = checkFrontOfEntity(entity);
-                    if(boundaryCheckEntity(entity) || (temp_entity != null && temp_entity.type == Entity.EntityType.TILE_BLOCK))
-                    {
-                        entity.position.y += entity.getVelocity();
-                        entity.state = Entity.EntityState.RIGHT;
-                    }
-                    entity.position.y += entity.getVelocity();
-                }
-                entity.position.y -= entity.getVelocity();
-                break;
-            default:
-                break;
-        }
-    }
-
-    public void updateEntity(Entity entity)
-    {
-        if(entity.sprite == null)
-        {
-            return;
-        }
-
-        Entity collided_entity;
-
-        switch(entity.state)
-        {
-            case UP:
-                entity.position.y += entity.getVelocity();
-
-                collided_entity = checkFrontOfEntity(entity);
-                if(collided_entity != null)
-                {
-                    updateCollidedEntity(entity, collided_entity, Entity.EntityState.UP);
-                }
-
-                if(boundaryCheckEntity(entity))
-                {
-                    updateCollidedEntityState(entity, collided_entity, Entity.EntityState.UP);
-                }
-
-                break;
-            case RIGHT:
-                entity.position.x += entity.getVelocity();
-
-                collided_entity = checkFrontOfEntity(entity);
-                if(collided_entity != null)
-                {
-                    updateCollidedEntity(entity, collided_entity, Entity.EntityState.RIGHT);
-                }
-
-                if(boundaryCheckEntity(entity))
-                {
-                    updateCollidedEntityState(entity, collided_entity, Entity.EntityState.RIGHT);
-                }
-                break;
-            case DOWN:
-                entity.position.y -= entity.getVelocity();
-
-                collided_entity = checkFrontOfEntity(entity);
-                if(collided_entity != null)
-                {
-                    updateCollidedEntity(entity, collided_entity, Entity.EntityState.DOWN);
-                }
-
-                if(boundaryCheckEntity(entity))
-                {
-                    updateCollidedEntityState(entity, collided_entity, Entity.EntityState.DOWN);
-                }
-                break;
-            case LEFT:
-                entity.position.x -= entity.getVelocity();
-
-                collided_entity = checkFrontOfEntity(entity);
-                if(collided_entity != null)
-                {
-                    updateCollidedEntity(entity, collided_entity, Entity.EntityState.LEFT);
-                }
-
-                if(boundaryCheckEntity(entity))
-                {
-                    updateCollidedEntityState(entity, collided_entity, Entity.EntityState.LEFT);
-                }
-                break;
-            case FREE:
-                freeEntity(entity);
-                break;
-        }
-    }
-
-    public boolean boundaryCheckEntity(Entity entity)
-    {
-        //Gdx.app.log("Yokaka", entity.position.x * entity.sprite.getScale()+entity.frameSize.x  * entity.sprite.getScale()+ " > " + Gdx.graphics.getWidth());
-        float pointX = entity.position.x * entity.getScale();
-        float pointY = entity.position.y * entity.getScale();
-        float frameX = entity.frameSize.x * entity.getScale();
-        float frameY = entity.frameSize.y * entity.getScale();
-
-        //64: Tile frame size, 9: Tiles per line
-        float mapWidth = 64 * 9 * entity.getScale();
-
-        if(pointY + frameY > Gdx.graphics.getHeight())
-        {
-            return true;
-        }
-        else if(pointX + frameX > mapWidth)
-        {
-            return true;
-        }
-        else if(entity.position.y < 0)
-        {
-            return true;
-        }
-        else if(entity.position.x < 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public Entity collisionCheckEntity(Entity entity)
-    {
-        Entity temp;
-
-        for(int i = 0; i < entityList.length; i++)
-        {
-            temp = entityList[i];
-            if(!temp.inuse)
+            if(!entity_list[i].inuse)
             {
                 continue;
             }
 
-            //ignore itself
-            if(temp == entity)
+            entity_list[i].free();
+        }
+    }
+
+    /**
+     * Gets the Arrow on specified coordinate
+     * @param coordinate the coordinate to check
+     * @return Arrow that is on the coordinate. Null if there is none
+     */
+    public Entity getArrowOnTile(Vector2 coordinate)
+    {
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
             {
                 continue;
             }
 
-            //if same type, not gonna do anything anyways so skip
-            if(temp.type == entity.type)
+            if( entity_list[i].position.x == coordinate.x &&
+                entity_list[i].position.y == coordinate.y &&
+                entity_list[i].type == Entity.EntityType.TILE_ARROW)
             {
-                continue;
-            }
-
-            //check collision
-            if( (entity.position.x + entity.frameSize.x > temp.position.x) &&
-                (temp.position.x + temp.frameSize.x > entity.position.x) &&
-                (entity.position.y + entity.frameSize.y > temp.position.y) &&
-                (temp.position.y + temp.frameSize.y > entity.position.y) )
-            {
-                return temp;
+                return entity_list[i];
             }
         }
         return null;

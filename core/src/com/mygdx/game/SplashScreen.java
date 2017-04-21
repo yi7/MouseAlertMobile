@@ -23,9 +23,9 @@ public class SplashScreen implements Screen
     public SplashScreen(MiceAlert game)
     {
         this.game = game;
-        texture = new Texture("Assets_Image/background.png");
+        texture = new Texture("image/background.png");
         splashImage = new Image(texture);
-        clickToPlay = new Texture("Assets_Image/clickToPlayStub.png");
+        clickToPlay = new Texture("image/clickToPlayStub.png");
         splashText = new Image(clickToPlay);
         splashImage.setFillParent(true);
         stage = new Stage();
@@ -35,15 +35,15 @@ public class SplashScreen implements Screen
     public void show()
     {
         splashImage.addAction(
-                Actions.sequence(
-                        Actions.alpha(0),
-                        Actions.fadeIn(3f),
-                        Actions.delay(1)));
+            Actions.sequence(
+                Actions.alpha(0),
+                Actions.fadeIn(3f),
+                Actions.delay(1)));
         splashImage.addListener(new ClickListener()
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                game.setScreen(new LevelGenerator(game));
+                game.setScreen(new LevelGenerator(game, "level/MiceAlert_Map_TileMap_01.tmx"));
                 return true;
             }
         });
@@ -51,10 +51,10 @@ public class SplashScreen implements Screen
         splashText.addAction(Actions.alpha(0));
         splashText.act(0);
         splashText.addAction(
-                Actions.forever(
-                        Actions.sequence(
-                                Actions.fadeIn(1f),
-                                Actions.fadeOut(1f))));
+            Actions.forever(
+                Actions.sequence(
+                    Actions.fadeIn(1f),
+                    Actions.fadeOut(1f))));
         //splashText.setPosition(Gdx.graphics.getWidth() / 32, Gdx.graphics.getHeight() - splashText.getHeight());
 
         stage.addActor(splashImage);

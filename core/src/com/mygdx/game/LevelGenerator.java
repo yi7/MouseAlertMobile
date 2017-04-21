@@ -2,75 +2,31 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
+/**
+ * Generates the Puzzle Level
+ */
 public class LevelGenerator extends ScreenAdapter implements GestureListener, Screen
 {
-    MiceAlert game;
-    OrthographicCamera camera;
-    OrthographicCamera hudCamera;
-    Stage stage;
-    GestureDetector gestureDetector;
-    TiledMap tilemap;
-    TiledMapRenderer tilemapRenderer;
-    TilemapSystem tilemapObjectRenderer;
-    MapObjects mapObjectsTiles;
-    MapObjects mapObjectsWalls;
-
-    TextButton button;
-
-    Texture textureCatTracer;
-    Texture textureMouseNeutral;
-    Texture textureTileArrow;
-    Texture textureTileBlock;
-    Texture textureTileHome;
-    Sprite spriteCatTracer;
-    Sprite spriteMouseNeutral;
-    Sprite spriteTileBlock;
-    Sprite spriteTileArrow;
-    Sprite spriteTileHome;
-    Entity entityTileArrow;
-    MapObjects mapObjectsCatTracer;
-
-    MapObjects test;
-
-    EntitySystem entitySystem;
-
-    float deltaTime;
-    float phoneScale;
-    float phoneWidth;
-    float phoneHeight;
-
-    final int TILE_SIZE = 64;
-    final int TILE_MAP_HEIGHT = 7;
-    final int TPL = 9; //tiles per line
-
+    /**
+     * Contains the different state of the Level
+     */
     public enum LevelState
     {
         STANDBY,
@@ -78,117 +34,157 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         RESET,
         FINISH
     }
-    LevelState levelState;
 
-    public LevelGenerator(MiceAlert game)
+    private MiceAlert game;                                         /**<Game*/
+    private LevelState level_state;                                 /**<Determines the State of the level*/
+    public EntitySystem entity_system;                              /**<Data Structure for Entity*/
+    public SpriteSystem sprite_system;                              /**<Data Structure for Sprite*/
+    public TilemapSystem tilemap_system;                            /**<Data Structure for Level Coordinates*/
+
+    private Texture sprite_sheet_texture;                           /**<Sprite Sheet*/
+    private final int sprite_sheet_cols = 8;                        /**<Sprite Sheet columns*/
+    private final int sprite_sheet_rows = 16;                        /**<Sprite Sheet rows*/
+
+    private OrthographicCamera level_camera;                        /**<Camera for the level*/
+    private OrthographicCamera hud_camera;                          /**<Camera for the hud*/
+    private GestureDetector gestureDetector;                        /**<Determines touch input*/
+    private Stage stage;                                            /**<HUD*/
+
+    private TiledMap tilemap;                                       /**<Tiled map*/
+    private OrthogonalTiledMapRenderer tilemap_renderer;            /**<Tilemap Renderer*/
+    private MapObjects objects;                                     /**<Objects in Tiled map*/
+
+    public final float phone_width = Gdx.graphics.getWidth();      /**<The width of the phone screen*/
+    public final float phone_height = Gdx.graphics.getHeight();    /**<The height of the phone screen*/
+    public float level_width;                                      /**<The width of the Tilemap*/
+    public float phone_scale;                                      /**<The scale of phone screen height*/
+    private float delta_time;                                      /**<Game time*/
+
+    private Entity entity_arrow;                                   /**<The Arrow Tile Entity that user can interact with*/
+
+    /**
+     * Constructor that initializes an empty level. Used in order to get phone scale
+     */
+    public LevelGenerator()
     {
-        this.game = game;
-        entitySystem = new EntitySystem();
-        stage = new Stage();
-        levelState = LevelState.STANDBY;
-        phoneWidth = Gdx.graphics.getWidth();
-        phoneHeight = Gdx.graphics.getHeight();
-        phoneScale = phoneHeight / ((float)TILE_SIZE * TILE_MAP_HEIGHT); //576 = 64px * 9tiles
-
-        LevelHudGenerator hud = new LevelHudGenerator(this);
-        stage = hud.getHud();
-
-        this.create();
+        this.tilemap_system = new TilemapSystem();
+        this.phone_scale = phone_height / ((float) tilemap_system.getTileFrameSize() * tilemap_system.tilemap_height);
+        this.level_width = tilemap_system.tile_frame_size * tilemap_system.tilemap_width * phone_scale;
     }
 
-    public void create()
+    /**
+     * Constructor that initializes the level
+     * @param game contains the batch
+     * @param level_path path of the level
+     */
+    public LevelGenerator(MiceAlert game, String level_path)
     {
-        camera = new OrthographicCamera(phoneWidth, phoneHeight);
-        camera.setToOrtho(false, phoneWidth, phoneHeight);
-        camera.update();
+        this.game = game;
+        this.entity_system = new EntitySystem();
+        this.sprite_sheet_texture = new Texture("image/MiceAlert_SpriteSheet.png");
+        this.sprite_system = new SpriteSystem(sprite_sheet_texture, sprite_sheet_cols, sprite_sheet_rows);
+        this.tilemap_system = new TilemapSystem();
+        this.level_state = LevelState.STANDBY;
 
-        hudCamera = new OrthographicCamera(phoneWidth - (TILE_SIZE * TPL * phoneScale), phoneHeight);
-        hudCamera.setToOrtho(false, phoneWidth - (TILE_SIZE * TPL * phoneScale), phoneHeight);
-        hudCamera.update();
+        this.initializeTilemap(level_path);
+        this.initializeLevelHud();
+        this.initializeCamera();
+        this.initializeGestureDetector();
+        this.initializeTilemapEntities();
 
-        gestureDetector = new GestureDetector(this);
+        entity_system.saveAllEntities();
+        this.delta_time = 0;
+    }
+
+    /**
+     * Initializes the Tilemap and the Tilemap Renderer
+     * @param level_path path of the level
+     */
+    public void initializeTilemap(String level_path)
+    {
+        this.phone_scale = phone_height / ((float) tilemap_system.getTileFrameSize() * tilemap_system.tilemap_height);
+        this.level_width = tilemap_system.tile_frame_size * tilemap_system.tilemap_width * phone_scale;
+        this.tilemap = new TmxMapLoader().load(level_path);
+        //tilemap = new TmxMapLoader().load("level/MiceAlert_Map_TileMap_01.tmx");
+        this.tilemap_renderer = new OrthogonalTiledMapRenderer(tilemap, phone_scale);
+    }
+
+    /**
+     * Initializes the HUD on right side of Tilemap
+     */
+    public void initializeLevelHud()
+    {
+        LevelHud hud = new LevelHud(this);
+        this.stage = hud.getHud();
+    }
+
+    /**
+     * Initializes the Level Camera
+     */
+    public void initializeCamera()
+    {
+        this.level_camera = new OrthographicCamera(phone_width, phone_height);
+        level_camera.setToOrtho(false, phone_width, phone_height);
+        level_camera.update();
+
+        this.hud_camera = new OrthographicCamera(phone_width - level_width, phone_height);
+        hud_camera.setToOrtho(false, phone_width -level_width, phone_height);
+        hud_camera.update();
+        //Gdx.app.log("Yokaka", phone_width + " : " + phone_height + " : " + phone_scale);
+    }
+
+    /**
+     * Initializes the Gesture Detector
+     */
+    public void initializeGestureDetector()
+    {
+        this.gestureDetector = new GestureDetector(this);
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
         multiplexer.addProcessor(gestureDetector);
         Gdx.input.setInputProcessor(multiplexer);
+    }
 
-        tilemap = new TmxMapLoader().load("Assets_Level/MiceAlert_Map_TileMap_01.tmx");
-        tilemapRenderer = new OrthogonalTiledMapRenderer(tilemap, phoneScale);
-        tilemapObjectRenderer = new TilemapSystem();
-        tilemapObjectRenderer.tilemapSetScale(phoneScale);
-        //mapObjectsWalls = tilemap.getLayers().get("Layer_Collision_Walls").getObjects();
-
-        textureTileBlock = new Texture("Assets_Image/Block.png");
-        textureTileHome = new Texture("Assets_Image/Home.png");
-        spriteTileBlock = new Sprite(textureTileBlock, 8, 4);
-        spriteTileHome = new Sprite(textureTileHome, 8, 4);
-        spriteTileBlock.setScale(phoneScale);
-        spriteTileHome.setScale(phoneScale);
-        mapObjectsTiles = tilemap.getLayers().get("Layer_Collision_Tiles").getObjects();
-        for(MapObject object : mapObjectsTiles)
+    /**
+     * Initializes the Entities on the Tilemap
+     */
+    public void initializeTilemapEntities()
+    {
+        objects = tilemap.getLayers().get("Layer_Entities").getObjects();
+        for(MapObject object : objects)
         {
-            if(object instanceof  RectangleMapObject)
+            if(object instanceof RectangleMapObject)
             {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                Entity temp_entity = new Entity();
+                Vector2 temp_position = new Vector2(rect.getX(), rect.getY());
+                Entity.EntityType type = temp_entity.str2entityType(object.getProperties().get("Type", String.class));
+                Entity.EntityState state = temp_entity.str2entityState(object.getProperties().get("State", String.class));
 
-                Entity temp_entity = null;
-                if(object.getProperties().get("Type", String.class).equals("TILE_BLOCK"))
+                switch(type)
                 {
-                    temp_entity = new Entity(Entity.EntityType.TILE_BLOCK, spriteTileBlock, phoneScale);
+                    case CAT_RACER:
+                        temp_entity = new EntityCatRacer(temp_position, type, state, sprite_system);
+                        break;
+                    case TILE_ARROW:
+                        temp_entity = new EntityTileArrow(temp_position, type, state, sprite_system);
+                        break;
+                    default:
+                        temp_entity = new Entity(temp_position, type, state, sprite_system);
+                        break;
                 }
-                else if(object.getProperties().get("Type", String.class).equals("TILE_HOME"))
-                {
-                    temp_entity = new Entity(Entity.EntityType.TILE_HOME, spriteTileHome, phoneScale);
-                }
-                temp_entity.setPosition(rect.getX(), rect.getY());
-                temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
-                temp_entity.setState(object.getProperties().get("State", String.class));
-                temp_entity.setOriginalState(object.getProperties().get("State", String.class));
-                temp_entity.generateSpriteTextureRegion();
-                //Gdx.app.log("Yokaka", rect.getX() + ", " + rect.getY());
-                entitySystem.newEntity(temp_entity);
+                entity_system.newEntity(temp_entity);
             }
         }
+    }
 
-        textureCatTracer = new Texture("Assets_Image/MiceAlert_Sprite_TracerCat.png");
-        textureMouseNeutral = new Texture("Assets_Image/MiceAlert_Sprite_NeutralMouse.png");
-        spriteCatTracer = new Sprite(textureCatTracer, 8, 4);
-        spriteCatTracer.setScale(phoneScale);
-        spriteMouseNeutral = new Sprite(textureMouseNeutral, 8, 4);
-        spriteMouseNeutral.setScale(phoneScale);
-        mapObjectsCatTracer = tilemap.getLayers().get("Layer_Spawn_Cats").getObjects();
-        for(MapObject object : mapObjectsCatTracer)
-        {
-            if (object instanceof RectangleMapObject)
-            {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-                Entity temp_entity = null;
-                if(object.getProperties().get("Type", String.class).equals("CAT_TRACER"))
-                {
-                    temp_entity = new Entity(Entity.EntityType.CAT_TRACER, spriteCatTracer, phoneScale);
-                }
-                else if(object.getProperties().get("Type", String.class).equals("MOUSE_NEUTRAL"))
-                {
-                    temp_entity = new Entity(Entity.EntityType.MOUSE_NEUTRAL, spriteMouseNeutral, phoneScale);
-                }
-
-                temp_entity.setPosition(rect.getX(), rect.getY());
-                temp_entity.setFrameSize(rect.getWidth(), rect.getHeight());
-                temp_entity.setState(object.getProperties().get("State", String.class));
-                temp_entity.setOriginalState(object.getProperties().get("State", String.class));
-                temp_entity.generateSpriteTextureRegion();
-                entitySystem.newEntity(temp_entity);
-            }
-        }
-
-        textureTileArrow = new Texture("Assets_Image/Arrow.png");
-        spriteTileArrow = new Sprite(textureTileArrow, 8, 4);
-        spriteTileArrow.setScale(phoneScale);
-
-        entitySystem.saveInitialState();
-
-        deltaTime = 0f;
+    /**
+     * Sets the State of the Level
+     * @param level_state State of the Level
+     */
+    public void setLevelState(LevelState level_state)
+    {
+        this.level_state = level_state;
     }
 
     @Override
@@ -198,94 +194,61 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        deltaTime += Gdx.graphics.getDeltaTime();
-
-        camera.update();
-        tilemapRenderer.setView(camera);
-        tilemapRenderer.render();
+        level_camera.update();
+        tilemap_renderer.setView(level_camera);
+        tilemap_renderer.render();
 
         game.batch.begin();
-        game.batch.setProjectionMatrix(camera.combined);
-        tilemapObjectRenderer.tilemapRenderObject(mapObjectsTiles, game.batch, deltaTime);
-        entitySystem.drawAllEntity(deltaTime, game.batch);
+        game.batch.setProjectionMatrix(level_camera.combined);
+        entity_system.drawAllEntity(game.batch, delta_time);
         game.batch.end();
 
         stage.draw();
+        switch(level_state)
+        {
+            case PLAY:
+                entity_system.updateAllEntities();
+                break;
+            case RESET:
+                entity_system.resetAllEntities(this, sprite_system);
+            default:
+                break;
+        }
 
-        entitySystem.updateAllEntity(this);
-    }
-
-    public float getLevelWidth()
-    {
-        return TILE_SIZE * TPL * phoneScale;
-    }
-
-    public void setLevelState(LevelState levelState)
-    {
-        this.levelState = levelState;
-    }
-
-    public float getScale()
-    {
-        return phoneScale;
-    }
-
-    @Override
-    public void show()
-    {
-
-    }
-
-    @Override
-    public void hide()
-    {
-
+        delta_time += Gdx.graphics.getDeltaTime();
     }
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button)
     {
-        int mapX;
-        int mapY;
-        int tile_position;
-        Entity entity;
-        Vector2 tile_coordinate;
-
-        if((x / phoneScale) <= (TILE_SIZE * TPL))
+        if(level_state == LevelState.STANDBY)
         {
-            mapX = (int)(x / TILE_SIZE / phoneScale);
-            mapY = (int)(y / TILE_SIZE / phoneScale);
-            tile_position = TPL * mapY + mapX;
+            int mapX;
+            int mapY;
+            int tile_position;
+            Entity temp_entity;
+            Vector2 tile_coordinate;
 
-            if(tile_position < 63)
+            if((x / phone_scale) <= (tilemap_system.getTileFrameSize() * tilemap_system.tilemap_width))
             {
-                tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
-                entity = entitySystem.checkAllTile(tile_coordinate);
-                if(entity == null)
+                mapX = (int)(x / tilemap_system.getTileFrameSize() / phone_scale);
+                mapY = (int)(y / tilemap_system.getTileFrameSize() / phone_scale);
+                tile_position = tilemap_system.tilemap_width * mapY + mapX;
+
+                if(tile_position < 63)
                 {
-                    //Gdx.app.log("Yokaka", "No Tile");
-                    entityTileArrow = new Entity(Entity.EntityType.TILE_ARROW, spriteTileArrow, phoneScale);
-                    entityTileArrow.setPosition(tile_coordinate.x, (tile_coordinate.y));
-                    entityTileArrow.setFrameSize(64f, 64f);
-                    entityTileArrow.generateSpriteTextureRegion();
-                }
-                else
-                {
-                    if(entity.type == Entity.EntityType.TILE_ARROW)
+                    tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
+                    temp_entity = entity_system.getArrowOnTile(tile_coordinate);
+                    if(temp_entity == null)
                     {
-                        entityTileArrow = entity;
+                        entity_arrow = new EntityTileArrow(tile_coordinate, Entity.EntityType.TILE_ARROW, Entity.EntityState.UP, sprite_system);
                     }
-                    //Gdx.app.log("Yokaka", "Exist");
+                    else
+                    {
+                        entity_arrow = temp_entity;
+                    }
                 }
-
-                //entitySystem.newEntity(entityTileArrow);
-
-                //Gdx.app.log("Yokaka", tile_coordinate.x + ", " + tile_coordinate.y);
             }
-
-
-            //Gdx.app.log("Yokaka", "Touch");
-            //Gdx.app.log("Yokaka", tile_position + "");
         }
         return false;
     }
@@ -293,26 +256,27 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     @Override
     public boolean tap(float x, float y, int count, int button)
     {
-        int mapX;
-        int mapY;
-        int tile_position;
-        Entity entity;
-
-        Vector2 tile_coordinate;
-
-        if((x / phoneScale) <= (TILE_SIZE * TPL))
+        if(level_state == LevelState.STANDBY)
         {
-            mapX = (int)(x / TILE_SIZE / phoneScale);
-            mapY = (int)(y / TILE_SIZE / phoneScale);
-            tile_position = TPL * mapY + mapX;
+            int mapX;
+            int mapY;
+            int tile_position;
+            Vector2 tile_coordinate;
+            Entity entity;
 
-            if(tile_position < 63)
-            {
-                tile_coordinate = tilemapObjectRenderer.getMapCoordinate(tile_position);
-                entitySystem.tapTile(tile_coordinate);
+            if ((x / phone_scale) <= (tilemap_system.tile_frame_size * tilemap_system.tilemap_width)) {
+                mapX = (int) (x / tilemap_system.tile_frame_size / phone_scale);
+                mapY = (int) (y / tilemap_system.tile_frame_size / phone_scale);
+                tile_position = tilemap_system.tilemap_width * mapY + mapX;
+
+                if (tile_position < 63) {
+                    tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
+                    entity = entity_system.getArrowOnTile(tile_coordinate);
+                    if (entity != null) {
+                        entity.free();
+                    }
+                }
             }
-
-            //Gdx.app.log("Yokaka", TILE_SIZE * TPL * phoneScale + " : " + Gdx.graphics.getWidth());
         }
         return false;
     }
@@ -326,23 +290,21 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     @Override
     public boolean fling(float velocityX, float velocityY, int button)
     {
-        if(entityTileArrow != null)
+        if(entity_arrow != null && level_state == LevelState.STANDBY)
         {
             if(Math.abs(velocityX) > Math.abs(velocityY))
             {
                 if(velocityX > 0)
                 {
                     //right
-                    entityTileArrow.setState("RIGHT");
-                    entitySystem.newEntity(entityTileArrow);
-                    Gdx.app.log("Yokaka", "right");
+                    entity_arrow.setState(Entity.EntityState.RIGHT);
+                    entity_system.newEntity(entity_arrow);
                 }
                 else
                 {
                     //left
-                    entityTileArrow.setState("LEFT");
-                    entitySystem.newEntity(entityTileArrow);
-                    Gdx.app.log("Yokaka", "left");
+                    entity_arrow.setState(Entity.EntityState.LEFT);
+                    entity_system.newEntity(entity_arrow);
                 }
             }
             else
@@ -350,16 +312,14 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 if(velocityY > 0)
                 {
                     //down
-                    entityTileArrow.setState("DOWN");
-                    entitySystem.newEntity(entityTileArrow);
-                    Gdx.app.log("Yokaka", "down");
+                    entity_arrow.setState(Entity.EntityState.DOWN);
+                    entity_system.newEntity(entity_arrow);
                 }
                 else
                 {
                     //up
-                    entityTileArrow.setState("UP");
-                    entitySystem.newEntity(entityTileArrow);
-                    Gdx.app.log("Yokaka", "up");
+                    entity_arrow.setState(Entity.EntityState.UP);
+                    entity_system.newEntity(entity_arrow);
                 }
             }
         }

@@ -1,64 +1,54 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashMap;
 
+/**
+ * The core data structure for Tile System
+ */
 public class TilemapSystem
 {
-    final int TOTAL_TILES = 63;
-    final int TILEMAP_WIDTH = 9;
-    final int TILEMAP_HEIGHT = 7;
-    HashMap<Integer, Vector2> positionMap;
-    float scale;
+    public final int tile_frame_size = 64;             /**<Size of Tile*/
+    public final int tilemap_height = 7;               /**<Number of tiles that make up the height*/
+    public final int tilemap_width = 9;                /**<Number of tiles that make up the width*/
+    private HashMap<Integer, Vector2> coordinate_list;  /**<Data Structure which contains all coordinates*/
 
+    /**
+     * Constructor that initializes coordinate Data Structure
+     */
     public TilemapSystem()
     {
-        int mapX, mapY;
         int index = 0;
         Vector2 position;
-        positionMap = new HashMap<Integer, Vector2>();
+        coordinate_list = new HashMap<Integer, Vector2>();
 
-        for(int i = TILEMAP_HEIGHT; i > 0; i--)
+        for(int i = tilemap_height; i > 0; i--)
         {
-            for(int j = 0; j < TILEMAP_WIDTH; j++)
+            for(int j = 0; j < tilemap_width; j++)
             {
-                position = new Vector2(j * 64, (i-1) * 64);
-                positionMap.put(index++, position);
+                position = new Vector2((j * tile_frame_size), ((i-1) * tile_frame_size));
+                coordinate_list.put(index++, position);
             }
         }
     }
 
+    /**
+     * Gets the frame size of a tile
+     * @return Size of tile
+     */
+    public int getTileFrameSize()
+    {
+        return tile_frame_size;
+    }
+
+    /**
+     * Gets the coordinate of a tile
+     * @param position position of the tile on the Level
+     * @return coordinate of the tile in position
+     */
     public Vector2 getMapCoordinate(int position)
     {
-        return positionMap.get(position);
-    }
-
-    public void tilemapSetScale(float scale)
-    {
-        this.scale = scale;
-    }
-
-    public void tilemapRenderObject(MapObjects objects, Batch batch, float deltaTime)
-    {
-        for(MapObject object : objects)
-        {
-            if(object instanceof TextureMapObject)
-            {
-                TextureMapObject textureObject = (TextureMapObject) object;
-                batch.draw(
-                    textureObject.getTextureRegion(),
-                    textureObject.getX() * scale,
-                    textureObject.getY() * scale,
-                    textureObject.getTextureRegion().getRegionWidth() * scale,
-                    textureObject.getTextureRegion().getRegionHeight() * scale
-                );
-            }
-        }
+        return coordinate_list.get(position);
     }
 }

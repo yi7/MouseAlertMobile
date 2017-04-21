@@ -2,24 +2,20 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-public class LevelHudGenerator
+public class LevelHud
 {
-    Stage stage;
-    Table table;
-    LevelGenerator level;
+    private Stage stage;
+    private Table table;
+    private LevelGenerator level;
 
     private Texture stubTexture;
     private Image stubImage;
@@ -30,21 +26,22 @@ public class LevelHudGenerator
     private Button playButton;
     private Button resetButton;
 
-    public LevelHudGenerator(LevelGenerator level)
+    public LevelHud(LevelGenerator level)
     {
-        stage = new Stage();
-        table = new Table();
-        table.setWidth(Gdx.graphics.getWidth() - level.getLevelWidth());
-        table.setHeight(Gdx.graphics.getHeight() - (Gdx.graphics.getWidth() - level.getLevelWidth()));
-        table.setPosition(level.getLevelWidth(), 0);
+        this.stage = new Stage();
+        this.table = new Table();
         this.level = level;
 
-        stubTexture = new Texture("Assets_Image/stubHud.png");
-        stubImage = new Image(stubTexture);
-        stubImage.setWidth(Gdx.graphics.getWidth() - level.getLevelWidth());
-        stubImage.setHeight(Gdx.graphics.getHeight());
+        table.setWidth(level.phone_width - level.level_width);
+        table.setHeight(level.phone_height - (level.phone_width - level.level_width));
+        table.setPosition(level.level_width, 0);
 
-        buttonTexture = new Texture("Assets_Image/testButton.png");
+        stubTexture = new Texture("image/stubHud.png");
+        stubImage = new Image(stubTexture);
+        stubImage.setWidth(level.phone_width - level.level_width);
+        stubImage.setHeight(level.phone_height);
+
+        buttonTexture = new Texture("image/testButton.png");
         buttontextureRegion = new TextureRegion(buttonTexture);
         buttonTextureRegionDrawable = new TextureRegionDrawable(buttontextureRegion);
         playButton = new Button(buttonTextureRegionDrawable);
@@ -53,14 +50,14 @@ public class LevelHudGenerator
 
     public Stage getHud()
     {
-        stubImage.setPosition(level.getLevelWidth(), 0);
+        stubImage.setPosition(level.level_width, 0);
         stage.addActor(stubImage);
 
         playButton.addListener(new ClickListener()
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                Gdx.app.log("Yokaka", "Play");
+                //Gdx.app.log("Yokaka", "Play");
                 level.setLevelState(LevelGenerator.LevelState.PLAY);
                 return true;
             }
@@ -70,15 +67,15 @@ public class LevelHudGenerator
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                Gdx.app.log("Yokaka", "Reset");
+                //Gdx.app.log("Yokaka", "Reset");
                 level.setLevelState(LevelGenerator.LevelState.RESET);
                 return true;
             }
         });
 
-        table.add(playButton).size(playButton.getWidth() * level.getScale(), playButton.getWidth() * level.getScale()).pad(10);
-        //table.row();
-        table.add(resetButton).size(resetButton.getWidth() * level.getScale(), resetButton.getWidth() * level.getScale()).pad(10);
+        table.add(playButton).size(playButton.getWidth() * level.phone_scale, playButton.getWidth() * level.phone_scale).pad(10);
+        table.row();
+        table.add(resetButton).size(resetButton.getWidth() * level.phone_scale, resetButton.getWidth() * level.phone_scale).pad(10);
         stage.addActor(table);
 
         return stage;
