@@ -158,19 +158,22 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
                 Entity temp_entity = new Entity();
                 Vector2 temp_position = new Vector2(rect.getX(), rect.getY());
-                Entity.EntityType type = temp_entity.str2entityType(object.getProperties().get("Type", String.class));
+                Entity.EntitySubtype subtype = temp_entity.str2entitySubtype(object.getProperties().get("Type", String.class));
                 Entity.EntityState state = temp_entity.str2entityState(object.getProperties().get("State", String.class));
 
-                switch(type)
+                switch(subtype)
                 {
                     case CAT_RACER:
-                        temp_entity = new EntityCatRacer(temp_position, type, state, sprite_system);
+                        temp_entity = new EntityCatRacer(temp_position, subtype, state, sprite_system);
+                        break;
+                    case MOUSE_NEUTRAL:
+                        temp_entity = new EntityMouseNeutral(temp_position, subtype, state, sprite_system);
                         break;
                     case TILE_ARROW:
-                        temp_entity = new EntityTileArrow(temp_position, type, state, sprite_system);
+                        temp_entity = new EntityTileArrow(temp_position, subtype, state, sprite_system);
                         break;
                     default:
-                        temp_entity = new Entity(temp_position, type, state, sprite_system);
+                        temp_entity = new Entity(temp_position, subtype, state, sprite_system);
                         break;
                 }
                 entity_system.newEntity(temp_entity);
@@ -238,10 +241,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 if(tile_position < 63)
                 {
                     tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
-                    temp_entity = entity_system.getArrowOnTile(tile_coordinate);
+                    temp_entity = entity_system.getEntityOnTile(tile_coordinate, Entity.EntitySubtype.TILE_ARROW);
                     if(temp_entity == null)
                     {
-                        entity_arrow = new EntityTileArrow(tile_coordinate, Entity.EntityType.TILE_ARROW, Entity.EntityState.UP, sprite_system);
+                        entity_arrow = new EntityTileArrow(tile_coordinate, Entity.EntitySubtype.TILE_ARROW, Entity.EntityState.UP, sprite_system);
                     }
                     else
                     {
@@ -271,7 +274,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 
                 if (tile_position < 63) {
                     tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
-                    entity = entity_system.getArrowOnTile(tile_coordinate);
+                    entity = entity_system.getEntityOnTile(tile_coordinate, Entity.EntitySubtype.TILE_ARROW);
                     if (entity != null) {
                         entity.free();
                     }

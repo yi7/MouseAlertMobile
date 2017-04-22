@@ -34,7 +34,7 @@ public class TilemapSystem
     }
 
     /**
-     * Gets the frame size of a tile
+     * Gets the sprite_frame size of a tile
      * @return Size of tile
      */
     public int getTileFrameSize()

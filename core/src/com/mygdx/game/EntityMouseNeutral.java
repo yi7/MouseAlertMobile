@@ -2,25 +2,25 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class EntityCatRacer extends Entity
+public class EntityMouseNeutral extends Entity
 {
     /**
      * Constructor that creates a Racer Cat Entity
      * @param position position of the Entity
-     * @param subtype subtype of the Entity
+     * @param subtype type of the Entity
      * @param state state of the Entity
      * @param sprite_system Sprite System
      */
-    public EntityCatRacer(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
+    public EntityMouseNeutral(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 2;
-        this.type = EntityType.CAT;
+        this.velocity = 1;
+        this.type = EntityType.MOUSE;
         this.hitbox_frame = new Vector2(16, 16);
     }
 
     /**
-     * Acts based on what Racer Cat collided with
+     * Acts based on what Neutral Mouse collided with
      * @param collided_entity Entity it collided with
      * @param entity_system Entity System
      */
@@ -31,13 +31,13 @@ public class EntityCatRacer extends Entity
 
         switch(collided_entity.subtype)
         {
-            case MOUSE_NEUTRAL:
-                /*temp_entity = entity_system.getEntityOnTile(this.position, EntityType.MOUSE_NEUTRAL);
+            case CAT_RACER:
+                /*temp_entity = entity_system.getEntityOnTile(this.position, EntityType.CAT_RACER);
                 if(temp_entity != null)
                 {
-                    collided_entity.free();
+                    this.free();
                 }*/
-                collided_entity.free();
+                this.free();
                 break;
             case TILE_ARROW:
                 temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_ARROW);
@@ -50,7 +50,7 @@ public class EntityCatRacer extends Entity
                 temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_HOME);
                 if(temp_entity != null)
                 {
-                    this.velocity = 0;
+                    this.free();
                 }
                 break;
             default:

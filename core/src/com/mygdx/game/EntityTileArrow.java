@@ -7,13 +7,13 @@ public class EntityTileArrow extends Entity
     /**
      * Constructor that creates a Tile Arrow Entity
      * @param position position of the Entity
-     * @param type type of the Entity
+     * @param subtype type of the Entity
      * @param state state of the Entity
      * @param sprite_system Sprite System
      */
-    public EntityTileArrow(Vector2 position, Entity.EntityType type, Entity.EntityState state, SpriteSystem sprite_system)
+    public EntityTileArrow(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
-        super(position, type, state, sprite_system);
+        super(position, subtype, state, sprite_system);
     }
 
     /**
@@ -26,10 +26,17 @@ public class EntityTileArrow extends Entity
     {
         Entity temp_entity;
 
-        switch(collided_entity.type)
+        switch(collided_entity.subtype)
         {
             case CAT_RACER:
-                temp_entity = entity_system.getArrowOnTile(collided_entity.position);
+                temp_entity = entity_system.getEntityOnTile(collided_entity.position, EntitySubtype.TILE_ARROW);
+                if(temp_entity != null)
+                {
+                    collided_entity.state = this.state;
+                }
+                break;
+            case MOUSE_NEUTRAL:
+                temp_entity = entity_system.getEntityOnTile(collided_entity.position, EntitySubtype.TILE_ARROW);
                 if(temp_entity != null)
                 {
                     collided_entity.state = this.state;

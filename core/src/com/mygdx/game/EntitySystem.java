@@ -55,21 +55,49 @@ public class EntitySystem
      */
     public boolean collisionCheckEntity(Entity self, Entity other)
     {
-        if( (self.position.x + self.frame.x > other.position.x) &&
-                (other.position.x + other.frame.x > self.position.x) &&
-                (self.position.y + self.frame.y > other.position.y) &&
-                (other.position.y + other.frame.y > self.position.y) )
+        if(self.type == Entity.EntityType.TILE || other.type == Entity.EntityType.TILE)
         {
-            return true;
+            if( (self.position.x + self.sprite_frame.x > other.position.x) &&
+                (other.position.x + other.sprite_frame.x > self.position.x) &&
+                (self.position.y + self.sprite_frame.y > other.position.y) &&
+                (other.position.y + other.sprite_frame.y > self.position.y) )
+            {
+                return true;
+            }
+        }
+        else
+        {
+            int sprite_frame = 64;
+            if( (self.position.x + ((sprite_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x > other.position.x) &&
+                (other.position.x + ((sprite_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x > self.position.x) &&
+                (self.position.y + ((sprite_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
+                (other.position.y + ((sprite_frame - other.hitbox_frame.y)/2) + other.hitbox_frame.y > self.position.y) )
+            {
+                return true;
+            }
         }
         return false;
     }
 
     /**
-     * Draws all Entities in the Entity System. Draws Arrows first, then everything else
+     * Draws all Entities in the Entity System.
      * @param batch Sprite Batch
+     * @param delta_time Game Time
      */
     public void drawAllEntity(Batch batch, float delta_time)
+    {
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_ARROW);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.MOUSE_NEUTRAL);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.CAT_RACER);
+    }
+
+    /**
+     * Draws all Entities in the Entity System filtered by type
+     * @param batch Sprite Batch
+     * @param delta_time Game Time
+     * @param subtype subtype to filter by
+     */
+    private void drawAllTypeEntity(Batch batch, float delta_time, Entity.EntitySubtype subtype)
     {
         for(int i = 0; i < entity_list.length; i++)
         {
@@ -78,27 +106,10 @@ public class EntitySystem
                 continue;
             }
 
-            if(entity_list[i].type != Entity.EntityType.TILE_ARROW)
+            if(entity_list[i].subtype == subtype)
             {
-                continue;
+                entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
             }
-
-            entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
-        }
-
-        for(int i = 0; i < entity_list.length; i++)
-        {
-            if(!entity_list[i].inuse)
-            {
-                continue;
-            }
-
-            if(entity_list[i].type == Entity.EntityType.TILE_ARROW)
-            {
-                continue;
-            }
-
-            entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
         }
     }
 
@@ -119,7 +130,7 @@ public class EntitySystem
                 continue;
             }
 
-            entity = new Entity(entity_list[i].position, entity_list[i].type, entity_list[i].state);
+            entity = new Entity(entity_list[i].position, entity_list[i].subtype, entity_list[i].state);
             temp_entity_list.add(entity);
         }
 
@@ -192,16 +203,19 @@ public class EntitySystem
 
         for(Entity entity : save)
         {
-            switch(entity.type)
+            switch(entity.subtype)
             {
                 case CAT_RACER:
-                    temp_entity = new EntityCatRacer(entity.position, entity.type, entity.state, sprite_system);
+                    temp_entity = new EntityCatRacer(entity.position, entity.subtype, entity.state, sprite_system);
+                    break;
+                case MOUSE_NEUTRAL:
+                    temp_entity = new EntityMouseNeutral(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
                 case TILE_ARROW:
-                    temp_entity = new EntityTileArrow(entity.position, entity.type, entity.state, sprite_system);
+                    temp_entity = new EntityTileArrow(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
                 default:
-                    temp_entity = new Entity(entity.position, entity.type, entity.state, sprite_system);
+                    temp_entity = new Entity(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
             }
             this.newEntity(temp_entity);
@@ -226,11 +240,12 @@ public class EntitySystem
     }
 
     /**
-     * Gets the Arrow on specified coordinate
+     * Gets the Entity specified by coordinate and type
      * @param coordinate the coordinate to check
-     * @return Arrow that is on the coordinate. Null if there is none
+     * @param subtype the type of Entity to check
+     * @return Entity that is on the coordinate. Null if there is none
      */
-    public Entity getArrowOnTile(Vector2 coordinate)
+    public Entity getEntityOnTile(Vector2 coordinate, Entity.EntitySubtype subtype)
     {
         for(int i = 0; i < entity_list.length; i++)
         {
@@ -241,7 +256,7 @@ public class EntitySystem
 
             if( entity_list[i].position.x == coordinate.x &&
                 entity_list[i].position.y == coordinate.y &&
-                entity_list[i].type == Entity.EntityType.TILE_ARROW)
+                entity_list[i].subtype == subtype)
             {
                 return entity_list[i];
             }
