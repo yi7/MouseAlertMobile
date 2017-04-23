@@ -32,7 +32,8 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         STANDBY,
         PLAY,
         RESET,
-        FINISH
+        GAMEOVER,
+        WIN
     }
 
     private MiceAlert game;                                         /**<Game*/
@@ -80,7 +81,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     public LevelGenerator(MiceAlert game, String level_path)
     {
         this.game = game;
-        this.entity_system = new EntitySystem();
+        this.entity_system = new EntitySystem(this);
         this.sprite_sheet_texture = new Texture("image/MiceAlert_SpriteSheet.png");
         this.sprite_system = new SpriteSystem(sprite_sheet_texture, sprite_sheet_cols, sprite_sheet_rows);
         this.tilemap_system = new TilemapSystem();
@@ -93,6 +94,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         this.initializeTilemapEntities();
 
         entity_system.saveAllEntities();
+        this.entity_arrow = null;
         this.delta_time = 0;
     }
 
@@ -204,19 +206,38 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         game.batch.begin();
         game.batch.setProjectionMatrix(level_camera.combined);
         entity_system.drawAllEntity(game.batch, delta_time);
-        game.batch.end();
 
-        stage.draw();
         switch(level_state)
         {
             case PLAY:
+                entity_system.checkWinState();
                 entity_system.updateAllEntities();
                 break;
             case RESET:
-                entity_system.resetAllEntities(this, sprite_system);
+                entity_system.resetAllEntities(sprite_system);
+                break;
+            case GAMEOVER:
+                Entity entity = entity_system.getGameOverEntity();
+                if(entity != null)
+                {
+                    sprite_system.draw
+                    (
+                        6, game.batch, delta_time,
+                        entity.position.x - (entity.sprite_frame.x / 2),
+                        entity.position.y - (entity.sprite_frame.y / 2),
+                        entity.sprite_frame.x * 2,
+                        entity.sprite_frame.y * 2
+                    );
+                }
+                break;
+            case WIN:
+                break;
             default:
                 break;
         }
+
+        game.batch.end();
+        stage.draw();
 
         delta_time += Gdx.graphics.getDeltaTime();
     }
@@ -241,6 +262,13 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 if(tile_position < 63)
                 {
                     tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
+
+                    if(!entity_system.checkOpenTile(tile_coordinate))
+                    {
+                        entity_arrow = null;
+                        return false;
+                    }
+
                     temp_entity = entity_system.getEntityOnTile(tile_coordinate, Entity.EntitySubtype.TILE_ARROW);
                     if(temp_entity == null)
                     {

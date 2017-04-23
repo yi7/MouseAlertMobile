@@ -67,4 +67,10 @@ public class SpriteSystem
         TextureRegion region = sprite_animation_list[key].getKeyFrame(delta_time, true);
         batch.draw(region, x * scale, y * scale, region.getRegionWidth() * scale, region.getRegionHeight() * scale);
     }
+
+    public void draw(int key, Batch batch, float delta_time, float x, float y, float width, float height)
+    {
+        TextureRegion region = sprite_animation_list[key].getKeyFrame(delta_time, true);
+        batch.draw(region, x * scale, y * scale, width * scale, height * scale);
+    }
 }

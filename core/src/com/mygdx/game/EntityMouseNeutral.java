@@ -14,7 +14,7 @@ public class EntityMouseNeutral extends Entity
     public EntityMouseNeutral(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 1;
+        this.velocity = 2;
         this.type = EntityType.MOUSE;
         this.hitbox_frame = new Vector2(16, 16);
     }
@@ -32,12 +32,9 @@ public class EntityMouseNeutral extends Entity
         switch(collided_entity.subtype)
         {
             case CAT_RACER:
-                /*temp_entity = entity_system.getEntityOnTile(this.position, EntityType.CAT_RACER);
-                if(temp_entity != null)
-                {
-                    this.free();
-                }*/
                 this.free();
+                entity_system.setLevelState(LevelGenerator.LevelState.GAMEOVER);
+                entity_system.setGameOverEntity(collided_entity);
                 break;
             case TILE_ARROW:
                 temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_ARROW);

@@ -13,15 +13,19 @@ import java.util.ArrayList;
  */
 public class EntitySystem
 {
-    Entity[] entity_list; /**<Data Structure which contains all entities*/
-    Preferences prefs;
+    private Entity[] entity_list;   /**<Data Structure which contains all entities*/
+    private Preferences prefs;      /**<Save data*/
+    private LevelGenerator level;   /**<Level Generator*/
+    private Entity gameover_entity; /**<Entity that triggered the gameover*/
 
     /**
      * Constructor that initializes an empty Entity Data Structure
      */
-    public EntitySystem()
+    public EntitySystem(LevelGenerator level)
     {
         entity_list = new Entity[1000];
+        this.prefs = Gdx.app.getPreferences("SaveInitialLevelState");
+        this.level = level;
 
         for(int i = 0; i < entity_list.length; i++)
         {
@@ -51,7 +55,7 @@ public class EntitySystem
      * Checks whether an Entity is colliding with another Entity
      * @param self Entity to check
      * @param other Entity to check
-     * @return
+     * @return whether a collision happened or not
      */
     public boolean collisionCheckEntity(Entity self, Entity other)
     {
@@ -121,7 +125,6 @@ public class EntitySystem
         Entity entity;
         Json json = new Json();
         ArrayList<Entity> temp_entity_list = new ArrayList<Entity>();
-        prefs = Gdx.app.getPreferences("SaveInitialLevelState");
 
         for(int i = 0; i < entity_list.length; i++)
         {
@@ -191,10 +194,9 @@ public class EntitySystem
 
     /**
      * Frees all Entity and initializes them again from the save file
-     * @param level
      * @param sprite_system
      */
-    public void resetAllEntities(LevelGenerator level, SpriteSystem sprite_system)
+    public void resetAllEntities(SpriteSystem sprite_system)
     {
         Entity temp_entity;
         Json json = new Json();
@@ -262,5 +264,71 @@ public class EntitySystem
             }
         }
         return null;
+    }
+
+    public boolean checkOpenTile(Vector2 coordinate)
+    {
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
+            {
+                continue;
+            }
+
+            if(entity_list[i].subtype == Entity.EntitySubtype.TILE_ARROW)
+            {
+                continue;
+            }
+
+            if( entity_list[i].position.x == coordinate.x &&
+                entity_list[i].position.y == coordinate.y )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setLevelState(LevelGenerator.LevelState level_state)
+    {
+        level.setLevelState(level_state);
+    }
+
+    public boolean checkWinState()
+    {
+        int mouse_count = 0;
+
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
+            {
+                continue;
+            }
+
+            if(entity_list[i].type == Entity.EntityType.MOUSE)
+            {
+                mouse_count++;
+            }
+        }
+
+        if(mouse_count == 0)
+        {
+            level.setLevelState(LevelGenerator.LevelState.WIN);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Entity getGameOverEntity()
+    {
+        return gameover_entity;
+    }
+
+    public void setGameOverEntity(Entity entity)
+    {
+        this.gameover_entity = entity;
     }
 }

@@ -14,7 +14,7 @@ public class EntityCatRacer extends Entity
     public EntityCatRacer(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 2;
+        this.velocity = 4;
         this.type = EntityType.CAT;
         this.hitbox_frame = new Vector2(16, 16);
     }
@@ -32,12 +32,9 @@ public class EntityCatRacer extends Entity
         switch(collided_entity.subtype)
         {
             case MOUSE_NEUTRAL:
-                /*temp_entity = entity_system.getEntityOnTile(this.position, EntityType.MOUSE_NEUTRAL);
-                if(temp_entity != null)
-                {
-                    collided_entity.free();
-                }*/
                 collided_entity.free();
+                entity_system.setLevelState(LevelGenerator.LevelState.GAMEOVER);
+                entity_system.setGameOverEntity(this);
                 break;
             case TILE_ARROW:
                 temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_ARROW);
@@ -50,7 +47,8 @@ public class EntityCatRacer extends Entity
                 temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_HOME);
                 if(temp_entity != null)
                 {
-                    this.velocity = 0;
+                    entity_system.setLevelState(LevelGenerator.LevelState.GAMEOVER);
+                    entity_system.setGameOverEntity(this);
                 }
                 break;
             default:
