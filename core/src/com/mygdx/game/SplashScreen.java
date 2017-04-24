@@ -43,7 +43,8 @@ public class SplashScreen implements Screen
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                game.setScreen(new LevelGenerator(game, "level/MiceAlert_Map_TileMap_01.tmx"));
+                //game.setScreen(new LevelGenerator(game, "level/MiceAlert_Map_TileMap_01.tmx"));
+                game.setScreen(new LevelMenu(game, "t"));
                 return true;
             }
         });

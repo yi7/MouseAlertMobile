@@ -14,7 +14,7 @@ public class EntityCatRacer extends Entity
     public EntityCatRacer(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 4;
+        this.velocity = 8;
         this.type = EntityType.CAT;
         this.hitbox_frame = new Vector2(16, 16);
     }

@@ -13,19 +13,19 @@ import java.util.ArrayList;
  */
 public class EntitySystem
 {
-    private Entity[] entity_list;   /**<Data Structure which contains all entities*/
-    private Preferences prefs;      /**<Save data*/
-    private LevelGenerator level;   /**<Level Generator*/
-    private Entity gameover_entity; /**<Entity that triggered the gameover*/
+    private Entity[] entity_list;               /**<Data Structure which contains all entities*/
+    private Preferences prefs;                  /**<Save data*/
+    private LevelGenerator level_generator;     /**<Level Generator*/
+    private Entity gameover_entity;             /**<Entity that triggered the gameover*/
 
     /**
      * Constructor that initializes an empty Entity Data Structure
      */
-    public EntitySystem(LevelGenerator level)
+    public EntitySystem(LevelGenerator level_generator)
     {
         entity_list = new Entity[1000];
         this.prefs = Gdx.app.getPreferences("SaveInitialLevelState");
-        this.level = level;
+        this.level_generator = level_generator;
 
         for(int i = 0; i < entity_list.length; i++)
         {
@@ -91,8 +91,10 @@ public class EntitySystem
     public void drawAllEntity(Batch batch, float delta_time)
     {
         this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_ARROW);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_HOME);
         this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.MOUSE_NEUTRAL);
         this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.CAT_RACER);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_BLOCK);
     }
 
     /**
@@ -222,7 +224,7 @@ public class EntitySystem
             }
             this.newEntity(temp_entity);
         }
-        level.setLevelState(LevelGenerator.LevelState.STANDBY);
+        level_generator.setLevelState(LevelGenerator.LevelState.STANDBY);
     }
 
     /**
@@ -266,6 +268,11 @@ public class EntitySystem
         return null;
     }
 
+    /**
+     * Checks whether an Arrow Tile can be placed or not
+     * @param coordinate the coordinate to check
+     * @return True if Tile is occupied, otherwise False
+     */
     public boolean checkOpenTile(Vector2 coordinate)
     {
         for(int i = 0; i < entity_list.length; i++)
@@ -289,11 +296,19 @@ public class EntitySystem
         return true;
     }
 
+    /**
+     * Sets the State of the Level
+     * @param level_state state of the level_generator
+     */
     public void setLevelState(LevelGenerator.LevelState level_state)
     {
-        level.setLevelState(level_state);
+        level_generator.setLevelState(level_state);
     }
 
+    /**
+     * Checks whether player won or not
+     * @return True if all mice made it home, otherwise false
+     */
     public boolean checkWinState()
     {
         int mouse_count = 0;
@@ -313,7 +328,7 @@ public class EntitySystem
 
         if(mouse_count == 0)
         {
-            level.setLevelState(LevelGenerator.LevelState.WIN);
+            level_generator.setLevelState(LevelGenerator.LevelState.WIN);
             return true;
         }
         else
@@ -322,11 +337,19 @@ public class EntitySystem
         }
     }
 
+    /**
+     * Gets the Cat Entity that caused the game over
+     * @return
+     */
     public Entity getGameOverEntity()
     {
         return gameover_entity;
     }
 
+    /**
+     * Sets the Cat Entity that caused the game over
+     * @param entity
+     */
     public void setGameOverEntity(Entity entity)
     {
         this.gameover_entity = entity;

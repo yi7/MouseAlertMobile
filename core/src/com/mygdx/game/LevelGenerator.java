@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.maps.MapObject;
@@ -17,7 +18,13 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 /**
  * Generates the Puzzle Level
@@ -37,7 +44,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     }
 
     private MiceAlert game;                                         /**<Game*/
-    private LevelState level_state;                                 /**<Determines the State of the level*/
+    public LevelState level_state;                                 /**<Determines the State of the level*/
     public EntitySystem entity_system;                              /**<Data Structure for Entity*/
     public SpriteSystem sprite_system;                              /**<Data Structure for Sprite*/
     public TilemapSystem tilemap_system;                            /**<Data Structure for Level Coordinates*/
@@ -50,6 +57,8 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     private OrthographicCamera hud_camera;                          /**<Camera for the hud*/
     private GestureDetector gestureDetector;                        /**<Determines touch input*/
     private Stage stage;                                            /**<HUD*/
+    public boolean show_popup;
+    private Stage popup_stage;
 
     private TiledMap tilemap;                                       /**<Tiled map*/
     private OrthogonalTiledMapRenderer tilemap_renderer;            /**<Tilemap Renderer*/
@@ -86,6 +95,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         this.sprite_system = new SpriteSystem(sprite_sheet_texture, sprite_sheet_cols, sprite_sheet_rows);
         this.tilemap_system = new TilemapSystem();
         this.level_state = LevelState.STANDBY;
+        this.show_popup = false;
 
         this.initializeTilemap(level_path);
         this.initializeLevelHud();
@@ -118,6 +128,12 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     {
         LevelHud hud = new LevelHud(this);
         this.stage = hud.getHud();
+    }
+
+    public void initializeLevelCompleteWindow()
+    {
+        LevelHud hud = new LevelHud(this);
+        this.popup_stage = hud.getWinHud();
     }
 
     /**
@@ -231,13 +247,25 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 }
                 break;
             case WIN:
+                this.initializeLevelCompleteWindow();
+                this.level_state = LevelState.STANDBY;
+                this.show_popup = true;
+                Gdx.input.setInputProcessor(popup_stage);
                 break;
             default:
                 break;
         }
-
         game.batch.end();
         stage.draw();
+
+        if(show_popup)
+        {
+            popup_stage.draw();
+        }
+        else
+        {
+
+        }
 
         delta_time += Gdx.graphics.getDeltaTime();
     }
@@ -259,7 +287,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 mapY = (int)(y / tilemap_system.getTileFrameSize() / phone_scale);
                 tile_position = tilemap_system.tilemap_width * mapY + mapX;
 
-                if(tile_position < 63)
+                if(tile_position < tilemap_system.tile_count)
                 {
                     tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
 
@@ -300,7 +328,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 mapY = (int) (y / tilemap_system.tile_frame_size / phone_scale);
                 tile_position = tilemap_system.tilemap_width * mapY + mapX;
 
-                if (tile_position < 63) {
+                if (tile_position < tilemap_system.tile_count) {
                     tile_coordinate = tilemap_system.getMapCoordinate(tile_position);
                     entity = entity_system.getEntityOnTile(tile_coordinate, Entity.EntitySubtype.TILE_ARROW);
                     if (entity != null) {

@@ -14,7 +14,7 @@ public class EntityMouseNeutral extends Entity
     public EntityMouseNeutral(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 2;
+        this.velocity = 4;
         this.type = EntityType.MOUSE;
         this.hitbox_frame = new Vector2(16, 16);
     }
