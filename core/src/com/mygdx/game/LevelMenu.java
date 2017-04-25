@@ -67,7 +67,7 @@ public class LevelMenu extends ScreenAdapter
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
                 {
                     //Gdx.app.log("Yokaka", "test");
-                    game.setScreen(new LevelGenerator(game, level.getPath()));
+                    game.setScreen(new LevelGenerator(game, level));
                     return true;
                 }
             });

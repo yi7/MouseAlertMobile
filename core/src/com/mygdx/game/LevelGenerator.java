@@ -87,7 +87,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
      * @param game contains the batch
      * @param level_path path of the level
      */
-    public LevelGenerator(MiceAlert game, String level_path)
+    public LevelGenerator(MiceAlert game, Level level)
     {
         this.game = game;
         this.entity_system = new EntitySystem(this);
@@ -97,7 +97,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         this.level_state = LevelState.STANDBY;
         this.show_popup = false;
 
-        this.initializeTilemap(level_path);
+        this.initializeTilemap(level.getPath());
         this.initializeLevelHud();
         this.initializeCamera();
         this.initializeGestureDetector();
