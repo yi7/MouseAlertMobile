@@ -26,7 +26,10 @@ public class Entity
         CAT_RACER,
         TILE_BLOCK,
         TILE_HOME,
-        TILE_ARROW
+        TILE_ARROW,
+        TILE_DOT,
+        TILE_HOLE,
+        GO_CIRCLE
     }
 
     /**
@@ -119,14 +122,30 @@ public class Entity
      * 5    TILE_ARROW_LEFT
      * 6    TILE_DOT
      * 7    TILE_HOLE
-     * 8    CAT_RACER_UP
-     * 9    CAT_RACER_RIGHT
-     * 10   CAT_RACER_DOWN
-     * 11   CAT_RACER_LEFT
-     * 12   MOUSE_NEUTRAL_UP
-     * 13   MOUSE_NEUTRAL_RIGHT
-     * 14   MOUSE_NEUTRAL_DOWN
-     * 15   MOUSE_NEUTRAL_RIGHT
+     * 8    Game Over Circle
+     * 9
+     * 10
+     * 11
+     * 12
+     * 13
+     * 14
+     * 15
+     * 16   CAT_RACER_UP
+     * 17   CAT_RACER_RIGHT
+     * 18   CAT_RACER_DOWN
+     * 19   CAT_RACER_LEFT
+     * 20   MOUSE_NEUTRAL_UP
+     * 21   MOUSE_NEUTRAL_RIGHT
+     * 22   MOUSE_NEUTRAL_DOWN
+     * 23   MOUSE_NEUTRAL_LEFT
+     * 24   MOUSE_HOVER_UP
+     * 25   MOUSE_HOVER_RIGHT
+     * 26   MOUSE_HOVER_DOWN
+     * 27   MOUSE_HOVER_LEFT
+     * 28   MOUSE_RACER_UP
+     * 29   MOUSE_RACER_RIGHT
+     * 30   MOUSE_RACER_DOWN
+     * 31   MOUSE_RACER_LEFT
      * @return Index of Animation depending on Entity Type and State
      */
     public int getKey()
@@ -150,29 +169,59 @@ public class Entity
                         return 5;
                 }
                 break;
+            case TILE_DOT:
+                return 6;
+            case TILE_HOLE:
+                return 7;
+            case GO_CIRCLE:
+                return 8;
             case CAT_RACER:
                 switch(state)
                 {
                     case UP:
-                        return 8;
+                        return 16;
                     case RIGHT:
-                        return 9;
+                        return 17;
                     case DOWN:
-                        return 10;
+                        return 18;
                     case LEFT:
-                        return 11;
+                        return 19;
                 }
             case MOUSE_NEUTRAL:
                 switch(state)
                 {
                     case UP:
-                        return 12;
+                        return 20;
                     case RIGHT:
-                        return 13;
+                        return 21;
                     case DOWN:
-                        return 14;
+                        return 22;
                     case LEFT:
-                        return 15;
+                        return 23;
+                }
+            case MOUSE_HOVER:
+                switch(state)
+                {
+                    case UP:
+                        return 24;
+                    case RIGHT:
+                        return 25;
+                    case DOWN:
+                        return 26;
+                    case LEFT:
+                        return 27;
+                }
+            case MOUSE_RACER:
+                switch(state)
+                {
+                    case UP:
+                        return 28;
+                    case RIGHT:
+                        return 29;
+                    case DOWN:
+                        return 30;
+                    case LEFT:
+                        return 31;
                 }
             default:
                 break;
@@ -449,6 +498,14 @@ public class Entity
         else if(string.equals("TILE_ARROW"))
         {
             return EntitySubtype.TILE_ARROW;
+        }
+        else if(string.equals("TILE_DOT"))
+        {
+            return EntitySubtype.TILE_DOT;
+        }
+        else if(string.equals("TILE_HOLE"))
+        {
+            return EntitySubtype.TILE_HOLE;
         }
         else
         {

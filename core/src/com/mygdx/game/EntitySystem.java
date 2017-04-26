@@ -90,20 +90,41 @@ public class EntitySystem
      */
     public void drawAllEntity(Batch batch, float delta_time)
     {
-        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_ARROW);
-        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_HOME);
-        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.MOUSE_NEUTRAL);
-        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.CAT_RACER);
-        this.drawAllTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_BLOCK);
+        this.drawAllSubTypeEntity(batch, delta_time, Entity.EntitySubtype.TILE_ARROW);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.TILE);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.MOUSE);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.CAT);
     }
 
     /**
      * Draws all Entities in the Entity System filtered by type
      * @param batch Sprite Batch
      * @param delta_time Game Time
+     * @param type type to filter by
+     */
+    private void drawAllTypeEntity(Batch batch, float delta_time, Entity.EntityType type)
+    {
+        for(int i = 0; i < entity_list.length; i++)
+        {
+            if(!entity_list[i].inuse)
+            {
+                continue;
+            }
+
+            if(entity_list[i].type == type)
+            {
+                entity_list[i].draw(entity_list[i].getKey(), batch, delta_time, entity_list[i].position.x, entity_list[i].position.y);
+            }
+        }
+    }
+
+    /**
+     * Draws all Entities in the Entity System filtered by subtype
+     * @param batch Sprite Batch
+     * @param delta_time Game Time
      * @param subtype subtype to filter by
      */
-    private void drawAllTypeEntity(Batch batch, float delta_time, Entity.EntitySubtype subtype)
+    private void drawAllSubTypeEntity(Batch batch, float delta_time, Entity.EntitySubtype subtype)
     {
         for(int i = 0; i < entity_list.length; i++)
         {

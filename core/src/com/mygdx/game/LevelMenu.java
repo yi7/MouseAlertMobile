@@ -29,7 +29,7 @@ public class LevelMenu extends ScreenAdapter
     private TextureRegionDrawable buttonTextureRegionDrawable;
     private Button playButton;
 
-    public LevelMenu(MiceAlert game, String path)
+    public LevelMenu(MiceAlert game)
     {
         this.game = game;
         this.level_menu = new Stage();

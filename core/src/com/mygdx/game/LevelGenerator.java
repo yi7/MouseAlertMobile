@@ -40,7 +40,8 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         PLAY,
         RESET,
         GAMEOVER,
-        WIN
+        WIN,
+        FREE
     }
 
     private MiceAlert game;                                         /**<Game*/
@@ -51,7 +52,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 
     private Texture sprite_sheet_texture;                           /**<Sprite Sheet*/
     private final int sprite_sheet_cols = 8;                        /**<Sprite Sheet columns*/
-    private final int sprite_sheet_rows = 16;                        /**<Sprite Sheet rows*/
+    private final int sprite_sheet_rows = 32;                        /**<Sprite Sheet rows*/
 
     private OrthographicCamera level_camera;                        /**<Camera for the level*/
     private OrthographicCamera hud_camera;                          /**<Camera for the hud*/
@@ -85,7 +86,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     /**
      * Constructor that initializes the level
      * @param game contains the batch
-     * @param level_path path of the level
+     * @param level Level class
      */
     public LevelGenerator(MiceAlert game, Level level)
     {
@@ -126,13 +127,13 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
      */
     public void initializeLevelHud()
     {
-        LevelHud hud = new LevelHud(this);
+        LevelHud hud = new LevelHud(this, game);
         this.stage = hud.getHud();
     }
 
     public void initializeLevelCompleteWindow()
     {
-        LevelHud hud = new LevelHud(this);
+        LevelHud hud = new LevelHud(this, game);
         this.popup_stage = hud.getWinHud();
     }
 
@@ -238,7 +239,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 {
                     sprite_system.draw
                     (
-                        6, game.batch, delta_time,
+                        8, game.batch, delta_time,
                         entity.position.x - (entity.sprite_frame.x / 2),
                         entity.position.y - (entity.sprite_frame.y / 2),
                         entity.sprite_frame.x * 2,
@@ -252,6 +253,8 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                 this.show_popup = true;
                 Gdx.input.setInputProcessor(popup_stage);
                 break;
+            case FREE:
+                this.dispose();
             default:
                 break;
         }

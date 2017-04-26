@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class LevelHud
 {
+    MiceAlert game;
     private Stage stage;
     private Table table;
     private LevelGenerator level_generator;
@@ -29,13 +30,15 @@ public class LevelHud
     private TextureRegionDrawable buttonTextureRegionDrawable;
     private Button playButton;
     private Button resetButton;
+    private Button backButton;
 
     private BitmapFont font;
     private Label text;
     private LabelStyle label_style;
 
-    public LevelHud(LevelGenerator level_generator)
+    public LevelHud(LevelGenerator level_generator, MiceAlert game)
     {
+        this.game = game;
         this.stage = new Stage();
         this.table = new Table();
         this.level_generator = level_generator;
@@ -54,6 +57,7 @@ public class LevelHud
         buttonTextureRegionDrawable = new TextureRegionDrawable(buttontextureRegion);
         playButton = new Button(buttonTextureRegionDrawable);
         resetButton = new Button(buttonTextureRegionDrawable);
+        backButton = new Button(buttonTextureRegionDrawable);
 
         label_style = new LabelStyle();
         label_style.font = new BitmapFont(Gdx.files.internal("skin/default.fnt"), false);
@@ -91,12 +95,25 @@ public class LevelHud
             }
         });
 
+        backButton.addListener(new ClickListener()
+        {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+            {
+                //Gdx.app.log("Yokaka", "Reset");
+                level_generator.setLevelState(LevelGenerator.LevelState.FREE);
+                game.setScreen(new LevelMenu(game));
+                return true;
+            }
+        });
+
         //table.add
         table.add(text);
         table.row();
-        table.add(playButton).size(playButton.getWidth() * level_generator.phone_scale, playButton.getWidth() * level_generator.phone_scale).pad(10);
+        table.add(playButton).size(playButton.getWidth() * level_generator.phone_scale, playButton.getWidth() * level_generator.phone_scale).pad(15);
         table.row();
-        table.add(resetButton).size(resetButton.getWidth() * level_generator.phone_scale, resetButton.getWidth() * level_generator.phone_scale).pad(10);
+        table.add(resetButton).size(resetButton.getWidth() * level_generator.phone_scale, resetButton.getWidth() * level_generator.phone_scale).pad(15);
+        table.row();
+        table.add(backButton).size(resetButton.getWidth() * level_generator.phone_scale, resetButton.getWidth() * level_generator.phone_scale).pad(15);
         stage.addActor(table);
 
         return stage;
@@ -132,8 +149,8 @@ public class LevelHud
         {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
             {
-                //Gdx.app.log("Yokaka", "Reset");
-                //level_generator.setLevelState(LevelGenerator.LevelState.RESET);
+                level_generator.setLevelState(LevelGenerator.LevelState.FREE);
+                game.setScreen(new LevelMenu(game));
                 return true;
             }
         });
