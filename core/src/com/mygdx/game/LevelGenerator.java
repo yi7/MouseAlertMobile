@@ -191,6 +191,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
                     case TILE_ARROW:
                         temp_entity = new EntityTileArrow(temp_position, subtype, state, sprite_system);
                         break;
+                    case VWALL_NEUTRAL:
+                    case HWALL_NEUTRAL:
+                        temp_entity = new EntityWall(temp_position, subtype, state, sprite_system);
+                        break;
                     default:
                         temp_entity = new Entity(temp_position, subtype, state, sprite_system);
                         break;

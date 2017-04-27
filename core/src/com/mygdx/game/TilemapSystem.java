@@ -9,9 +9,9 @@ import java.util.HashMap;
  */
 public class TilemapSystem
 {
-    public final int tile_frame_size = 64;             /**<Size of Tile*/
-    public int tilemap_height = 7;               /**<Number of tiles that make up the height*/
-    public int tilemap_width = 9;                /**<Number of tiles that make up the width*/
+    public final int tile_frame_size = 64;              /**<Size of Tile*/
+    public int tilemap_height = 7;                      /**<Number of tiles that make up the height*/
+    public int tilemap_width = 9;                       /**<Number of tiles that make up the width*/
     public int tile_count;
     private HashMap<Integer, Vector2> coordinate_list;  /**<Data Structure which contains all coordinates*/
 

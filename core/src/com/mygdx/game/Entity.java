@@ -15,7 +15,8 @@ public class Entity
     {
         MOUSE,
         CAT,
-        TILE
+        TILE,
+        WALL
     }
 
     public enum EntitySubtype
@@ -29,6 +30,8 @@ public class Entity
         TILE_ARROW,
         TILE_DOT,
         TILE_HOLE,
+        VWALL_NEUTRAL,
+        HWALL_NEUTRAL,
         GO_CIRCLE
     }
 
@@ -175,6 +178,10 @@ public class Entity
                 return 7;
             case GO_CIRCLE:
                 return 8;
+            case VWALL_NEUTRAL:
+                return 9;
+            case HWALL_NEUTRAL:
+                return 10;
             case CAT_RACER:
                 switch(state)
                 {
@@ -277,7 +284,7 @@ public class Entity
             this.think(temp_entity, entity_system);
         }
 
-        if(checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK))
+        if(checkOutOfBounds() || checkFrontPassable(temp_entity))
         {
             this.backstep();
             switch(state)
@@ -286,12 +293,12 @@ public class Entity
                     this.state = EntityState.RIGHT;
                     this.step();
                     temp_entity = entity_system.collisionCheckAllEntities(this);
-                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                    if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                         this.backstep();
                         this.state = EntityState.LEFT;
                         this.step();
                         temp_entity = entity_system.collisionCheckAllEntities(this);
-                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                        if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                             this.backstep();
                             this.state = Entity.EntityState.DOWN;
                         }
@@ -309,12 +316,12 @@ public class Entity
                     this.state = EntityState.DOWN;
                     this.step();
                     temp_entity = entity_system.collisionCheckAllEntities(this);
-                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                    if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                         this.backstep();
                         this.state = Entity.EntityState.UP;
                         this.step();
                         temp_entity = entity_system.collisionCheckAllEntities(this);
-                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                        if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                             this.backstep();
                             this.state = Entity.EntityState.LEFT;
                         }
@@ -332,12 +339,12 @@ public class Entity
                     this.state = EntityState.LEFT;
                     this.step();
                     temp_entity = entity_system.collisionCheckAllEntities(this);
-                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                    if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                         this.backstep();
                         this.state = Entity.EntityState.RIGHT;
                         this.step();
                         temp_entity = entity_system.collisionCheckAllEntities(this);
-                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                        if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                             this.backstep();
                             this.state = Entity.EntityState.UP;
                         }
@@ -355,12 +362,12 @@ public class Entity
                     this.state = EntityState.UP;
                     this.step();
                     temp_entity = entity_system.collisionCheckAllEntities(this);
-                    if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                    if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                         this.backstep();
                         this.state = Entity.EntityState.DOWN;
                         this.step();
                         temp_entity = entity_system.collisionCheckAllEntities(this);
-                        if (checkOutOfBounds() || (temp_entity != null && temp_entity.subtype == EntitySubtype.TILE_BLOCK)) {
+                        if(checkOutOfBounds() || checkFrontPassable(temp_entity)) {
                             this.backstep();
                             this.state = Entity.EntityState.RIGHT;
                         }
@@ -379,6 +386,23 @@ public class Entity
             }
             this.step();
         }
+    }
+
+    /**
+     * Checks if front of Entity is open
+     * @param collided_entity Entity that it collided with
+     * @return True if if collided entity was a wall or block, otherwise false
+     */
+    public boolean checkFrontPassable(Entity collided_entity)
+    {
+        if(collided_entity != null)
+        {
+            if(collided_entity.subtype == EntitySubtype.TILE_BLOCK || collided_entity.type == EntityType.WALL)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -506,6 +530,14 @@ public class Entity
         else if(string.equals("TILE_HOLE"))
         {
             return EntitySubtype.TILE_HOLE;
+        }
+        else if(string.equals("VWALL_NEUTRAL"))
+        {
+            return EntitySubtype.VWALL_NEUTRAL;
+        }
+        else if(string.equals("HWALL_NEUTRAL"))
+        {
+            return EntitySubtype.HWALL_NEUTRAL;
         }
         else
         {

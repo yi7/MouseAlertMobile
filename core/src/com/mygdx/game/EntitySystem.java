@@ -69,6 +69,37 @@ public class EntitySystem
                 return true;
             }
         }
+        else if(self.type == Entity.EntityType.WALL || other.type == Entity.EntityType.WALL)
+        {
+            int sprite_frame = 64;
+            int wall_frame = 48;
+            if(self.type == Entity.EntityType.WALL)
+            {
+                if( (self.position.x + ((wall_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x > other.position.x + ((sprite_frame - other.hitbox_frame.x)/2)) &&
+                    (other.position.x + ((sprite_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x > self.position.x) &&
+                    (self.position.y + ((wall_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
+                    (other.position.y + ((sprite_frame - other.hitbox_frame.y)/2) + other.hitbox_frame.y > self.position.y + ((sprite_frame - other.hitbox_frame.y)/2)) )
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                /*Gdx.app.log("YokakaS", self.type + ": " + (self.position.x + ((sprite_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x) + " > " + other.position.x);
+                Gdx.app.log("YokakaS", self.type + ": " + (self.position.x));
+                Gdx.app.log("YokakaS", self.type + ": " + (self.hitbox_frame.x));
+                Gdx.app.log("YokakaO", other.type + ": " + (other.position.x + ((wall_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x) + " > " + (self.position.x + 24));
+                Gdx.app.log("YokakaO", other.type + ": " + (other.position.x));
+                Gdx.app.log("YokakaO", other.type + ": " + (other.hitbox_frame.x));*/
+                if( (self.position.x + ((sprite_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x > other.position.x) &&
+                    (other.position.x + ((wall_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x > self.position.x + ((sprite_frame - self.hitbox_frame.x)/2)) &&
+                    (self.position.y + ((sprite_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
+                    (other.position.y + ((wall_frame - other.hitbox_frame.y)/2) + other.hitbox_frame.y > self.position.y + ((sprite_frame - self.hitbox_frame.y)/2)) )
+                {
+                    return true;
+                }
+            }
+        }
         else
         {
             int sprite_frame = 64;
@@ -77,6 +108,7 @@ public class EntitySystem
                 (self.position.y + ((sprite_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
                 (other.position.y + ((sprite_frame - other.hitbox_frame.y)/2) + other.hitbox_frame.y > self.position.y) )
             {
+                Gdx.app.log("YokakaS", "True?");
                 return true;
             }
         }
@@ -94,6 +126,7 @@ public class EntitySystem
         this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.TILE);
         this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.MOUSE);
         this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.CAT);
+        this.drawAllTypeEntity(batch, delta_time, Entity.EntityType.WALL);
     }
 
     /**
@@ -238,6 +271,10 @@ public class EntitySystem
                     break;
                 case TILE_ARROW:
                     temp_entity = new EntityTileArrow(entity.position, entity.subtype, entity.state, sprite_system);
+                    break;
+                case VWALL_NEUTRAL:
+                case HWALL_NEUTRAL:
+                    temp_entity = new EntityWall(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
                 default:
                     temp_entity = new Entity(entity.position, entity.subtype, entity.state, sprite_system);
