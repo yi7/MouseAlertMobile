@@ -59,8 +59,55 @@ public class EntitySystem
      */
     public boolean collisionCheckEntity(Entity self, Entity other)
     {
+
         if(self.type == Entity.EntityType.TILE || other.type == Entity.EntityType.TILE)
         {
+            if(self.subtype == Entity.EntitySubtype.TILE_HOLE || other.subtype == Entity.EntitySubtype.TILE_HOLE)
+            {
+                if ((self.subtype == Entity.EntitySubtype.TILE_HOLE && other.subtype == Entity.EntitySubtype.MOUSE_HOVER) ||
+                    (self.subtype == Entity.EntitySubtype.MOUSE_HOVER && other.subtype == Entity.EntitySubtype.TILE_HOLE))
+                {
+                    return false;
+                }
+
+                if(self.subtype == Entity.EntitySubtype.TILE_HOLE)
+                {
+                    Entity temp_entity = this.getEntityOnTile(other.position, Entity.EntitySubtype.TILE_HOLE);
+                    if(temp_entity == null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    Entity temp_entity = this.getEntityOnTile(self.position, Entity.EntitySubtype.TILE_HOLE);
+                    if(temp_entity == null)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if(self.subtype == Entity.EntitySubtype.TILE_HOME || other.subtype == Entity.EntitySubtype.TILE_HOME)
+            {
+                if(self.subtype == Entity.EntitySubtype.TILE_HOME)
+                {
+                    Entity temp_entity = this.getEntityOnTile(other.position, Entity.EntitySubtype.TILE_HOME);
+                    if(temp_entity == null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    Entity temp_entity = this.getEntityOnTile(self.position, Entity.EntitySubtype.TILE_HOME);
+                    if(temp_entity == null)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             if( (self.position.x + self.sprite_frame.x > other.position.x) &&
                 (other.position.x + other.sprite_frame.x > self.position.x) &&
                 (self.position.y + self.sprite_frame.y > other.position.y) &&
@@ -85,12 +132,6 @@ public class EntitySystem
             }
             else
             {
-                /*Gdx.app.log("YokakaS", self.type + ": " + (self.position.x + ((sprite_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x) + " > " + other.position.x);
-                Gdx.app.log("YokakaS", self.type + ": " + (self.position.x));
-                Gdx.app.log("YokakaS", self.type + ": " + (self.hitbox_frame.x));
-                Gdx.app.log("YokakaO", other.type + ": " + (other.position.x + ((wall_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x) + " > " + (self.position.x + 24));
-                Gdx.app.log("YokakaO", other.type + ": " + (other.position.x));
-                Gdx.app.log("YokakaO", other.type + ": " + (other.hitbox_frame.x));*/
                 if( (self.position.x + ((sprite_frame - self.hitbox_frame.x)/2) + self.hitbox_frame.x > other.position.x) &&
                     (other.position.x + ((wall_frame - other.hitbox_frame.x)/2) + other.hitbox_frame.x > self.position.x + ((sprite_frame - self.hitbox_frame.x)/2)) &&
                     (self.position.y + ((sprite_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
@@ -108,7 +149,6 @@ public class EntitySystem
                 (self.position.y + ((sprite_frame - self.hitbox_frame.y)/2) + self.hitbox_frame.y > other.position.y) &&
                 (other.position.y + ((sprite_frame - other.hitbox_frame.y)/2) + other.hitbox_frame.y > self.position.y) )
             {
-                Gdx.app.log("YokakaS", "True?");
                 return true;
             }
         }
@@ -263,11 +303,17 @@ public class EntitySystem
         {
             switch(entity.subtype)
             {
+                case CAT_NEUTRAL:
+                    temp_entity = new EntityCatNeutral(entity.position, entity.subtype, entity.state, sprite_system);
+                    break;
                 case CAT_RACER:
                     temp_entity = new EntityCatRacer(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
                 case MOUSE_NEUTRAL:
                     temp_entity = new EntityMouseNeutral(entity.position, entity.subtype, entity.state, sprite_system);
+                    break;
+                case MOUSE_HOVER:
+                    temp_entity = new EntityMouseHover(entity.position, entity.subtype, entity.state, sprite_system);
                     break;
                 case TILE_ARROW:
                     temp_entity = new EntityTileArrow(entity.position, entity.subtype, entity.state, sprite_system);
@@ -309,6 +355,7 @@ public class EntitySystem
      */
     public Entity getEntityOnTile(Vector2 coordinate, Entity.EntitySubtype subtype)
     {
+
         for(int i = 0; i < entity_list.length; i++)
         {
             if(!entity_list[i].inuse)

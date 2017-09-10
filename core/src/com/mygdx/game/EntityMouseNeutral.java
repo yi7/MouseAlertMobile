@@ -50,6 +50,14 @@ public class EntityMouseNeutral extends Entity
                     this.free();
                 }
                 break;
+            case TILE_HOLE:
+                temp_entity = entity_system.getEntityOnTile(this.position, EntitySubtype.TILE_HOLE);
+                if(temp_entity != null)
+                {
+                    entity_system.setLevelState(LevelGenerator.LevelState.GAMEOVER);
+                    entity_system.setGameOverEntity(this);
+                }
+                break;
             default:
                 break;
         }

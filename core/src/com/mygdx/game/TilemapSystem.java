@@ -18,11 +18,11 @@ public class TilemapSystem
     /**
      * Constructor that initializes coordinate Data Structure
      */
-    public TilemapSystem()
+    public TilemapSystem(Level level)
     {
-        //this.tilemap_width = tilemap_width;
-        //this.tilemap_height = tilemap_height;
-        this.tile_count = tilemap_width * tilemap_height;
+        this.tilemap_width = level.getTilemapWidth();
+        this.tilemap_height = level.getTilemapHeight();
+        this.tile_count = level.getTilemapWidth() * level.getTilemapHeight();
         int index = 0;
         Vector2 position;
         coordinate_list = new HashMap<Integer, Vector2>();

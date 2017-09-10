@@ -2,19 +2,19 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class EntityCatRacer extends Entity
+public class EntityCatNeutral extends Entity
 {
     /**
-     * Constructor that creates a Racer Cat Entity
+     * Constructor that creates a Neutral Cat Entity
      * @param position position of the Entity
      * @param subtype subtype of the Entity
      * @param state state of the Entity
      * @param sprite_system Sprite System
      */
-    public EntityCatRacer(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
+    public EntityCatNeutral(Vector2 position, Entity.EntitySubtype subtype, Entity.EntityState state, SpriteSystem sprite_system)
     {
         super(position, subtype, state, sprite_system);
-        this.velocity = 8;
+        this.velocity = 4;
         this.type = EntityType.CAT;
         this.hitbox_frame = new Vector2(16, 16);
     }
@@ -32,6 +32,7 @@ public class EntityCatRacer extends Entity
         switch(collided_entity.subtype)
         {
             case MOUSE_NEUTRAL:
+            case MOUSE_HOVER:
                 collided_entity.free();
                 entity_system.setLevelState(LevelGenerator.LevelState.GAMEOVER);
                 entity_system.setGameOverEntity(this);

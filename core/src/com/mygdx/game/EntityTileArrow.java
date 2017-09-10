@@ -33,6 +33,7 @@ public class EntityTileArrow extends Entity
                 if(temp_entity != null)
                 {
                     collided_entity.state = this.state;
+                    this.free();
                 }
                 break;
             case MOUSE_NEUTRAL:

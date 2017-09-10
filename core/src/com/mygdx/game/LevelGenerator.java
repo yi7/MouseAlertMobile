@@ -49,6 +49,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     public EntitySystem entity_system;                              /**<Data Structure for Entity*/
     public SpriteSystem sprite_system;                              /**<Data Structure for Sprite*/
     public TilemapSystem tilemap_system;                            /**<Data Structure for Level Coordinates*/
+    public Level level;
 
     private Texture sprite_sheet_texture;                           /**<Sprite Sheet*/
     private final int sprite_sheet_cols = 8;                        /**<Sprite Sheet columns*/
@@ -74,16 +75,6 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     private Entity entity_arrow;                                   /**<The Arrow Tile Entity that user can interact with*/
 
     /**
-     * Constructor that initializes an empty level. Used in order to get phone scale
-     */
-    public LevelGenerator()
-    {
-        this.tilemap_system = new TilemapSystem();
-        this.phone_scale = phone_height / ((float) tilemap_system.getTileFrameSize() * tilemap_system.tilemap_height);
-        this.level_width = tilemap_system.tile_frame_size * tilemap_system.tilemap_width * phone_scale;
-    }
-
-    /**
      * Constructor that initializes the level
      * @param game contains the batch
      * @param level Level class
@@ -94,9 +85,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         this.entity_system = new EntitySystem(this);
         this.sprite_sheet_texture = new Texture("image/MiceAlert_SpriteSheet.png");
         this.sprite_system = new SpriteSystem(sprite_sheet_texture, sprite_sheet_cols, sprite_sheet_rows);
-        this.tilemap_system = new TilemapSystem();
+        this.tilemap_system = new TilemapSystem(level);
         this.level_state = LevelState.STANDBY;
         this.show_popup = false;
+        this.level = level;
 
         this.initializeTilemap(level.getPath());
         this.initializeLevelHud();
@@ -104,6 +96,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
         this.initializeGestureDetector();
         this.initializeTilemapEntities();
 
+        sprite_system.setLevelGenerator(this);
         entity_system.saveAllEntities();
         this.entity_arrow = null;
         this.delta_time = 0;
@@ -128,7 +121,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     public void initializeLevelHud()
     {
         LevelHud hud = new LevelHud(this, game);
-        this.stage = hud.getHud();
+        this.stage = hud.getHud(level);
     }
 
     public void initializeLevelCompleteWindow()
@@ -182,11 +175,17 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
 
                 switch(subtype)
                 {
+                    case CAT_NEUTRAL:
+                        temp_entity = new EntityCatNeutral(temp_position, subtype, state, sprite_system);
+                        break;
                     case CAT_RACER:
                         temp_entity = new EntityCatRacer(temp_position, subtype, state, sprite_system);
                         break;
                     case MOUSE_NEUTRAL:
                         temp_entity = new EntityMouseNeutral(temp_position, subtype, state, sprite_system);
+                        break;
+                    case MOUSE_HOVER:
+                        temp_entity = new EntityMouseHover(temp_position, subtype, state, sprite_system);
                         break;
                     case TILE_ARROW:
                         temp_entity = new EntityTileArrow(temp_position, subtype, state, sprite_system);

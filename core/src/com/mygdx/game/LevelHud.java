@@ -63,12 +63,12 @@ public class LevelHud
         label_style.font = new BitmapFont(Gdx.files.internal("skin/default.fnt"), false);
     }
 
-    public Stage getHud()
+    public Stage getHud(Level level)
     {
         stubImage.setPosition(level_generator.level_width, 0);
         stage.addActor(stubImage);
 
-        text = new Label("Test", label_style);
+        text = new Label("Arrow Limit: " + level.getArrowLimit(), label_style);
         text.setColor(Color.BLACK);
         text.setFontScale(5f, 5f);
 

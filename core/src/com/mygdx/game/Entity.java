@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 
@@ -24,6 +25,7 @@ public class Entity
         MOUSE_NEUTRAL,
         MOUSE_RACER,
         MOUSE_HOVER,
+        CAT_NEUTRAL,
         CAT_RACER,
         TILE_BLOCK,
         TILE_HOME,
@@ -183,6 +185,7 @@ public class Entity
             case HWALL_NEUTRAL:
                 return 10;
             case CAT_RACER:
+            case CAT_NEUTRAL:
                 switch(state)
                 {
                     case UP:
@@ -233,7 +236,7 @@ public class Entity
             default:
                 break;
         }
-        return 0;
+        return 11;
     }
 
     /**
@@ -282,6 +285,11 @@ public class Entity
         if(temp_entity != null)
         {
             this.think(temp_entity, entity_system);
+        }
+
+        if(this.type == EntityType.TILE || this.type == EntityType.WALL)
+        {
+            return;
         }
 
         if(checkOutOfBounds() || checkFrontPassable(temp_entity))
@@ -464,17 +472,18 @@ public class Entity
             return false;
         }
 
-        LevelGenerator level = new LevelGenerator();
-        float x = position.x * level.phone_scale;
-        float y = position.y * level.phone_scale;
-        float frameX = sprite_frame.x * level.phone_scale;
-        float frameY = sprite_frame.y * level.phone_scale;
+        LevelGenerator level_generator = sprite_system.getLevelGenerator();
+        float phone_scale = level_generator.phone_scale;
+        float x = position.x * phone_scale;
+        float y = position.y * phone_scale;
+        float frameX = sprite_frame.x * phone_scale;
+        float frameY = sprite_frame.y * phone_scale;
 
-        if(y + frameY > level.phone_height)
+        if(y + frameY > Gdx.graphics.getHeight())
         {
             return true;
         }
-        else if(x + frameX > level.level_width)
+        else if(x + frameX > level_generator.level_width)
         {
             return true;
         }
@@ -506,6 +515,10 @@ public class Entity
         else if(string.equals("MOUSE_HOVER"))
         {
             return EntitySubtype.MOUSE_HOVER;
+        }
+        else if(string.equals("CAT_NEUTRAL"))
+        {
+            return EntitySubtype.CAT_NEUTRAL;
         }
         else if(string.equals("CAT_RACER"))
         {

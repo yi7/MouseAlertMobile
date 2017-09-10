@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
  */
 public class SpriteSystem
 {
+    private LevelGenerator level_generator;     /**<Used to get phone dimensions*/
+
     private Texture texture;                    /**<Sprite Sheet*/
     private int cols;                           /**<Sprite Sheet columns*/
     private int rows;                           /**<Sprite Sheet rows*/
@@ -50,15 +52,32 @@ public class SpriteSystem
             sprite_animation_list[i] = new Animation(1f/4f, temp);
             sprite_animation_list[i].setPlayMode(Animation.PlayMode.LOOP);
         }
+    }
 
-        LevelGenerator level = new LevelGenerator();
-        this.scale = level.phone_scale;
+    /**
+     * Sets the LevelGenerator, used for level dimension and scale
+     * @param level_generator LevelGenerator to set
+     */
+    public void setLevelGenerator(LevelGenerator level_generator)
+    {
+        this.level_generator = level_generator;
+        this.scale = level_generator.phone_scale;
+    }
+
+    /**
+     * Gets the LevelGenerator, used for level dimension and scale
+     * @return LevelGenerator to retrieve
+     */
+    public LevelGenerator getLevelGenerator()
+    {
+        return level_generator;
     }
 
     /**
      * Method that animates the sprite onto the screen
      * @param key   Determines which Sprite animation to draw
-     * @param batch Renderer
+     * @param batch Sprite Batch
+     * @param delta_time game time
      * @param x     X position
      * @param y     Y position
      */
@@ -68,6 +87,16 @@ public class SpriteSystem
         batch.draw(region, x * scale, y * scale, region.getRegionWidth() * scale, region.getRegionHeight() * scale);
     }
 
+    /**
+     * Method that draws the sprite onto the screen based on scale
+     * @param key Determines which Sprite to draw
+     * @param batch Sprite Batch
+     * @param delta_time game time
+     * @param x X position
+     * @param y Y position
+     * @param width frame width
+     * @param height frame height
+     */
     public void draw(int key, Batch batch, float delta_time, float x, float y, float width, float height)
     {
         TextureRegion region = sprite_animation_list[key].getKeyFrame(delta_time, true);
