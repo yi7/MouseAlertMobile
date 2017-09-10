@@ -392,6 +392,11 @@ public class EntitySystem
                 continue;
             }
 
+            if(entity_list[i].type == Entity.EntityType.MOUSE || entity_list[i].type == Entity.EntityType.CAT)
+            {
+                continue;
+            }
+
             if( entity_list[i].position.x == coordinate.x &&
                 entity_list[i].position.y == coordinate.y )
             {

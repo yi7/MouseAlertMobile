@@ -280,8 +280,16 @@ public class Entity
      */
     public void update(EntitySystem entity_system)
     {
-        this.step();
+        //First checks if initially there's an arrow underneath
         Entity temp_entity = entity_system.collisionCheckAllEntities(this);
+        if(temp_entity != null)
+        {
+            this.think(temp_entity, entity_system);
+        }
+
+        //Next checks whether it collides with anything in front
+        this.step();
+        temp_entity = entity_system.collisionCheckAllEntities(this);
         if(temp_entity != null)
         {
             this.think(temp_entity, entity_system);
