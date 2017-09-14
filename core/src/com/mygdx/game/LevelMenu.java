@@ -30,6 +30,7 @@ public class LevelMenu extends ScreenAdapter implements GestureDetector.GestureL
     private Table level_layout;
     private Table pack_layout;
     private ArrayList<Level> level_list;
+    private ArrayList<MapPack> pack_list;
     private ScrollPane scroller;
 
     private Texture buttonTexture;
@@ -51,7 +52,8 @@ public class LevelMenu extends ScreenAdapter implements GestureDetector.GestureL
         this.pack_layout = new Table();
 
         Json json = new Json();
-        this.level_list = json.fromJson(ArrayList.class, Gdx.files.internal("level/test.json").readString());
+        //this.level_list = json.fromJson(ArrayList.class, Gdx.files.internal("level/pack01/pack01.json").readString());
+        this.pack_list = json.fromJson(ArrayList.class, Gdx.files.internal("level/pack_location.json").readString());
 
         /*level_menu.setViewport(
             new StretchViewport(
@@ -74,7 +76,7 @@ public class LevelMenu extends ScreenAdapter implements GestureDetector.GestureL
         buttontextureRegion2 = new TextureRegion(buttonTexture);
         buttonTextureRegionDrawable2 = new TextureRegionDrawable(buttontextureRegion);
 
-        this.makeMenu();
+        //this.makeMenu();
         this.makePackMenu();
 
         this.gestureDetector = new GestureDetector(this);
@@ -84,21 +86,23 @@ public class LevelMenu extends ScreenAdapter implements GestureDetector.GestureL
         Gdx.input.setInputProcessor(multiplexer);
     }
 
-    public void makeMenu()
+    public void makeMenu(String pack_path)
     {
         //Gdx.app.log("Yokaka", level_list.size() + "");
+        Json json = new Json();
+        this.level_list = json.fromJson(ArrayList.class, Gdx.files.internal(pack_path).readString());
+
         int row_index = 1;
         //float phone_scale = Gdx.graphics.getHeight() / ((float) buttonTexture.getHeight() * 8);
         for(final Level level : level_list)
         {
             playButton = new Button(buttonTextureRegionDrawable);
-            playButton.addListener(new ClickListener()
+            playButton.addListener(new ActorGestureListener()
             {
-                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+                public void tap(InputEvent event, float x, float y, int pointer, int button)
                 {
                     //Gdx.app.log("Yokaka", "test");
                     game.setScreen(new LevelGenerator(game, level));
-                    return true;
                 }
             });
 
@@ -124,14 +128,15 @@ public class LevelMenu extends ScreenAdapter implements GestureDetector.GestureL
         pack_layout.row();
         pack_layout.row();
         pack_layout.row();
-        for(int i = 0; i < 8; i++)
+        for(final MapPack pack: pack_list)
         {
             playButton = new Button(buttonTextureRegionDrawable);
             playButton.addListener(new ActorGestureListener()
             {
                 public void tap(InputEvent event, float x, float y, int pointer, int button)
                 {
-                    Gdx.app.log("Yokaka", "test");
+                    //Gdx.app.log("Yokaka", "test");
+                    makeMenu(pack.getPath());
                 }
             });
             pack_layout.add(playButton).size(playButton.getWidth() * phone_scale, playButton.getHeight() * phone_scale).pad(30);
