@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 public class LevelHud
 {
     MiceAlert game;
+    LevelMenu menu;
     private Stage stage;
     private Table table;
     private LevelGenerator level_generator;
@@ -36,9 +37,10 @@ public class LevelHud
     private Label text;
     private LabelStyle label_style;
 
-    public LevelHud(LevelGenerator level_generator, MiceAlert game)
+    public LevelHud(LevelGenerator level_generator, MiceAlert game, LevelMenu menu)
     {
         this.game = game;
+        this.menu = menu;
         this.stage = new Stage();
         this.table = new Table();
         this.level_generator = level_generator;
@@ -101,7 +103,8 @@ public class LevelHud
             {
                 //Gdx.app.log("Yokaka", "Reset");
                 level_generator.setLevelState(LevelGenerator.LevelState.FREE);
-                game.setScreen(new LevelMenu(game));
+                menu.setInputProcessor();
+                game.setScreen(menu);
                 return true;
             }
         });

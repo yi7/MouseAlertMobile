@@ -45,6 +45,7 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
     }
 
     private MiceAlert game;                                         /**<Game*/
+    private LevelMenu menu;
     public LevelState level_state;                                 /**<Determines the State of the level*/
     public EntitySystem entity_system;                              /**<Data Structure for Entity*/
     public SpriteSystem sprite_system;                              /**<Data Structure for Sprite*/
@@ -79,9 +80,10 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
      * @param game contains the batch
      * @param level Level class
      */
-    public LevelGenerator(MiceAlert game, Level level)
+    public LevelGenerator(MiceAlert game, Level level, LevelMenu menu)
     {
         this.game = game;
+        this.menu = menu;
         this.entity_system = new EntitySystem(this);
         this.sprite_sheet_texture = new Texture("image/MiceAlert_SpriteSheet.png");
         this.sprite_system = new SpriteSystem(sprite_sheet_texture, sprite_sheet_cols, sprite_sheet_rows);
@@ -120,13 +122,13 @@ public class LevelGenerator extends ScreenAdapter implements GestureListener, Sc
      */
     public void initializeLevelHud()
     {
-        LevelHud hud = new LevelHud(this, game);
+        LevelHud hud = new LevelHud(this, game, menu);
         this.stage = hud.getHud(level);
     }
 
     public void initializeLevelCompleteWindow()
     {
-        LevelHud hud = new LevelHud(this, game);
+        LevelHud hud = new LevelHud(this, game, menu);
         this.popup_stage = hud.getWinHud();
     }
 
